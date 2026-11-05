@@ -1,0 +1,4 @@
+Django>=5.0,<6
+Pillow>=10.0
+# Για PostgreSQL (προαιρετικά, FD_DB=postgres):
+# psycopg[binary]>=3.1
