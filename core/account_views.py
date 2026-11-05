@@ -75,6 +75,10 @@ def login_view(request):
             if user is None:
                 ratelimit.record(request, "login")
                 form.add_error(None, "Λάθος στοιχεία ή κωδικός.")
+            elif hasattr(user, "membership") and settings.FD_DEMO_LOGINS and user.membership.party.is_example:
+                # Επίδειξη: τα κόμματα δείγματος δεν ζητούν 2FA (μόνο με FD_DEMO_LOGINS)
+                login(request, user)
+                return redirect("manage")
             elif hasattr(user, "membership"):
                 request.session["pending_2fa"] = {"uid": user.pk, "at": time.time()}
                 return redirect("totp")

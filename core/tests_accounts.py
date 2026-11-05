@@ -199,3 +199,34 @@ class AccountTests(TestCase):
         from django.core.management import call_command
         call_command("invite_member", "new@example.org", "Α")
         self.assertTrue(PartyMember.objects.filter(user__username="new@example.org", party=self.a).exists())
+
+
+class DemoPartyLoginTests(TestCase):
+    """Με FD_DEMO_LOGINS τα κόμματα δείγματος μπαίνουν χωρίς 2FA· τα πραγματικά κόμματα ζητούν πάντα 2FA."""
+
+    def _member(self, example):
+        from django.contrib.auth import get_user_model
+
+        from .models import Party, PartyMember
+
+        party = Party.objects.create(name="Δοκιμή", responsible_persons="x", is_example=example)
+        user = get_user_model().objects.create_user("m@example.org", "m@example.org", "kodikos-12345")
+        PartyMember.objects.create(user=user, party=party)
+
+    def test_example_party_skips_2fa_when_enabled(self):
+        self._member(True)
+        with self.settings(FD_DEMO_LOGINS=True):
+            r = self.client.post(reverse("login"), {"email": "m@example.org", "password": "kodikos-12345"})
+        self.assertRedirects(r, reverse("manage"), fetch_redirect_response=False)
+
+    def test_example_party_needs_2fa_when_disabled(self):
+        self._member(True)
+        with self.settings(FD_DEMO_LOGINS=False):
+            r = self.client.post(reverse("login"), {"email": "m@example.org", "password": "kodikos-12345"})
+        self.assertRedirects(r, reverse("totp"), fetch_redirect_response=False)
+
+    def test_real_party_always_needs_2fa(self):
+        self._member(False)
+        with self.settings(FD_DEMO_LOGINS=True):
+            r = self.client.post(reverse("login"), {"email": "m@example.org", "password": "kodikos-12345"})
+        self.assertRedirects(r, reverse("totp"), fetch_redirect_response=False)

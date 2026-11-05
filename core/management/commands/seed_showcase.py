@@ -113,6 +113,7 @@ class Command(BaseCommand):
                     metric="Ετήσια δημόσια αναφορά με 3 δείκτες (φανταστικό).",
                     source="https://example.org/pigi-deigmatos", is_published=True))
 
+        self.seed_member(party)
         self.seed_citizens()
         self.seed_discussion()
         from django.db.models import Q
@@ -124,6 +125,21 @@ class Command(BaseCommand):
             ChangeLogEntry.objects.create(party=party, summary="Ενημερώθηκε το βιογραφικό: Ειρήνη Δείγμα")
         self.stdout.write("Λογαριασμοί πολιτών δείγματος (μόνο με FD_DEMO_LOGINS), κωδικός " + DEMO_PASSWORD + ": politis-deigma@example.org, kanali-deigma@example.org, anagnostis-0@example.org")
         self.stdout.write(self.style.SUCCESS(f"Έτοιμο: «{NAME}» με πρόσωπα, social, βίντεο και προτάσεις σε όλα τα θέματα."))
+
+    def seed_member(self, party):
+        """Λογαριασμός εκπροσώπου του κόμματος δείγματος (μόνο με FD_DEMO_LOGINS). Δεν ζητά 2FA, γιατί το κόμμα είναι παράδειγμα."""
+        from django.conf import settings
+        from django.contrib.auth import get_user_model
+
+        from core.models import PartyMember
+
+        if not settings.FD_DEMO_LOGINS:
+            return
+        email = "komma-deigma@example.org"
+        user, created = get_user_model().objects.get_or_create(username=email, defaults={"email": email})
+        prepare_user(user, created)
+        PartyMember.objects.get_or_create(user=user, defaults={"party": party})
+        self.stdout.write(f"Εκπρόσωπος κόμματος δείγματος: {email} / {DEMO_PASSWORD}")
 
     def seed_citizens(self):
         """Δύο ενδεικτικές προτάσεις πολιτών (ένας πολίτης, ένα κανάλι) στο πρώτο θέμα. Σε DEBUG οι λογαριασμοί έχουν κωδικό demo-politis-1."""
