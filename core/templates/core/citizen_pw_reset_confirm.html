@@ -1,0 +1,6 @@
+{% extends "core/base.html" %}
+{% block title %}Νέος κωδικός · Freedom for Democracy{% endblock %}
+{% block content %}
+<h1>Νέος κωδικός</h1>
+{% if validlink %}<form method="post" class="panel narrow">{% csrf_token %}{% include "core/_form_fields.html" %}<button type="submit">Αποθήκευση</button></form>{% else %}<p>Ο σύνδεσμος δεν ισχύει πια. <a href="{% url 'citizen_pw_reset' %}">Ζητήστε νέο.</a></p>{% endif %}
+{% endblock %}

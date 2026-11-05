@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% block title %}Νέα πρόταση · Freedom for Democracy{% endblock %}
+{% block content %}
+<p class="note"><a href="{% url 'topic' topic.slug %}">← {{ topic.name }}</a></p>
+<h1>Νέα πρόταση: {{ topic.name }}</h1>
+<p class="lead">Δομημένη πρόταση, έως 150 λέξεις ανά πεδίο. Μία πρόταση ανά θέμα. Δεν επιτρέπονται σύνδεσμοι στα κείμενα, μόνο στην πηγή.</p>
+<form method="post" class="panel">
+  {% csrf_token %}
+  {% include "core/_form_fields.html" %}
+  <button type="submit">Δημοσίευση</button>
+</form>
+{% endblock %}

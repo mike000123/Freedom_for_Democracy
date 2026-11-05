@@ -1,0 +1,62 @@
+{% extends "core/base.html" %}
+{% block title %}Το κόμμα μου · Freedom for Democracy{% endblock %}
+{% block content %}
+<p class="eyebrow">Η καρτέλα μου</p>
+<h1>{{ party.name }}</h1>
+<p>
+  <span class="pill">{{ party.get_kind_display }}</span>
+  <span class="pill {% if party.tier == 'full' %}pill-teal{% endif %}">{{ party.get_tier_display }}</span>
+  {% if party.is_published %}<span class="pill pill-teal">Δημοσιευμένο</span>{% else %}<span class="pill pill-accent">Αναμένει έλεγχο, δεν είναι δημόσιο</span>{% endif %}
+</p>
+<p class="note">Τα υπεύθυνα πρόσωπα, το είδος και η βαθμίδα του προφίλ ορίζονται από τη διαχείριση μετά από έλεγχο. Κάθε αλλαγή που κάνετε καταγράφεται στο δημόσιο ιστορικό αλλαγών.</p>
+
+<div class="cols">
+  <div class="panel">
+    <h2>Προφίλ</h2>
+    <ul>
+      {% for label, done in checklist %}<li>{% if done %}✓{% else %}○{% endif %} {{ label }}</li>{% endfor %}
+    </ul>
+    <p><a class="btn" href="{% url 'profile_edit' %}">Επεξεργασία προφίλ</a> <a class="btn" href="{% url 'people_edit' %}">Βιογραφικά προσώπων</a> <a class="btn" href="{% url 'videos_edit' %}">Βίντεο YouTube</a></p>
+  </div>
+  <div class="panel">
+    <h2>Δομημένες προτάσεις</h2>
+    {% if proposals %}
+    <table>
+      <tbody>
+      {% for p in proposals %}
+        <tr>
+          <td>{{ p.topic.name }}</td>
+          <td>{{ p.title }}{% if not p.is_published %} <span class="pill">πρόχειρη</span>{% endif %}</td>
+          <td><a href="{% url 'proposal_edit' p.pk %}">Επεξεργασία</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="note">Δεν έχετε προτάσεις ακόμη.</p>{% endif %}
+    <p><a class="btn" href="{% url 'proposal_new' %}">Νέα πρόταση</a></p>
+  </div>
+</div>
+
+<h2>Ερωτήσεις προς το κόμμα σας</h2>
+{% for c, answered in incoming %}
+  <div class="comment">
+    <p class="who">{{ c.created_at|date:"d/m/Y H:i" }} · {{ c.pseudonym }} · <a href="{% url 'proposal' c.proposal_id %}#c{{ c.pk }}">{{ c.proposal.title }}</a>
+      {% if answered %}<span class="pill pill-teal">υπάρχει επίσημη απάντηση</span>{% else %}<span class="pill pill-accent">αναμένει απάντηση</span>{% endif %}</p>
+    <p>{{ c.body|truncatewords:40 }}</p>
+  </div>
+{% empty %}
+  <p class="note">Καμία ερώτηση ακόμη.</p>
+{% endfor %}
+
+<h2>Πρόσφατα ερωτήματα πολιτών</h2>
+<p class="note">Μπορείτε να απαντήσετε επίσημα σε οποιοδήποτε ερώτημα.</p>
+<ul>
+  {% for q in open_questions %}<li><a href="{% url 'question' q.pk %}">{{ q.body|truncatewords:15 }}</a> <span class="note">({{ q.topic.name }})</span></li>{% empty %}<li class="note">Κανένα.</li>{% endfor %}
+</ul>
+
+<p>
+  <a href="{% url 'password_change' %}">Αλλαγή κωδικού</a>
+  ·
+  <form method="post" action="{% url 'logout' %}" class="inline">{% csrf_token %}<button class="link" type="submit">Αποσύνδεση</button></form>
+</p>
+{% endblock %}

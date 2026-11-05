@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% block title %}Είσοδος · Freedom for Democracy{% endblock %}
+{% block content %}
+<p class="eyebrow">Λογαριασμός</p>
+<h1>Είσοδος</h1>
+<p class="lead">Μία είσοδος για πολίτες, οργανισμούς, εκπροσώπους κομμάτων και διαχειριστές. Οι εκπρόσωποι κομμάτων επιβεβαιώνουν στη συνέχεια με την εφαρμογή ταυτοποίησης.</p>
+<form method="post" class="panel narrow">
+  {% csrf_token %}
+  {% include "core/_form_fields.html" %}
+  <button type="submit">Είσοδος</button>
+</form>
+<p class="note"><a href="{% url 'citizen_register' %}">Δημιουργία λογαριασμού</a> · <a href="{% url 'citizen_pw_reset' %}">Ξέχασα τον κωδικό</a></p>
+{% endblock %}

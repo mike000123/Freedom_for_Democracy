@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% block title %}Δημιουργία λογαριασμού · Freedom for Democracy{% endblock %}
+{% block content %}
+<h1>Δημιουργία λογαριασμού</h1>
+<p class="lead">Για σχόλια, ερωτήματα και προτάσεις. Ισχύει και για κανάλια YouTube, εκπομπές και ομάδες, με πρόσωπο επικοινωνίας. Στέλνουμε σύνδεσμο επιβεβαίωσης στο email σας. Το email δεν δημοσιεύεται ποτέ. Δείτε την <a href="{% url 'privacy' %}">πολιτική απορρίτου</a>.</p>
+<form method="post" class="panel medium">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.name == "website" %}<div class="hp">{{ field }}</div>
+    {% elif field.name == "captcha" %}<div class="form-row"><label for="{{ field.id_for_label }}">Πόσο κάνει {{ captcha_q }};</label>{{ field }}{{ field.errors }}</div>
+    {% elif field.name == "consent" %}<div class="form-row"><label for="{{ field.id_for_label }}" class="check">{{ field }} {{ field.label }}</label>{{ field.errors }}</div>
+    {% else %}<div class="form-row"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endif %}
+  {% endfor %}
+  <button type="submit">Δημιουργία λογαριασμού</button>
+</form>
+<p class="note">Έχετε ήδη λογαριασμό; <a href="{% url 'login' %}">Είσοδος</a></p>
+{% endblock %}

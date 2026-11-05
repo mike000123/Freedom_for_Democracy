@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% block title %}Κόμματα και ομάδες · Freedom for Democracy{% endblock %}
+{% block body %}
+<section class="wrap pad-top">
+  <p class="eyebrow">Πολιτικές παρουσίες</p>
+  <h1 class="display-s">Κόμματα και ομάδες</h1>
+  <p class="lead">Η σειρά αλλάζει σε κάθε επίσκεψη με δίκαιη εναλλαγή. Δεν εκφράζει δημοτικότητα, υποστήριξη ή πληρωμή. <a href="{% url 'transparency' %}">Δείτε πώς λειτουργεί.</a></p>
+  <form method="get" class="filterbar">
+    <div class="f-search"><label for="q">Αναζήτηση</label><input type="text" name="q" id="q" value="{{ q }}" maxlength="80" placeholder="Όνομα ή σύνθημα..."></div>
+    <div class="f-kind"><label for="kind">Τύπος</label>
+      <select name="kind" id="kind">
+        <option value="all" {% if kind == "all" %}selected{% endif %}>Όλα (κόμματα και ομάδες)</option>
+        <option value="party" {% if kind == "party" %}selected{% endif %}>Μόνο κόμματα</option>
+        <option value="group" {% if kind == "group" %}selected{% endif %}>Μόνο ομάδες υπό σύσταση</option>
+      </select></div>
+    <div><label for="topic">Θέμα</label>
+      <select name="topic" id="topic"><option value="">Όλα</option>{% for t in topics %}<option value="{{ t.slug }}" {% if topic_slug == t.slug %}selected{% endif %}>{{ t.name }}</option>{% endfor %}</select></div>
+    <div><label for="tier">Κατάσταση προφίλ</label>
+      <select name="tier" id="tier"><option value="">Όλα</option>
+        <option value="full" {% if tier == "full" %}selected{% endif %}>Πλήρες προφίλ</option>
+        <option value="in_progress" {% if tier == "in_progress" %}selected{% endif %}>Προφίλ σε εξέλιξη</option></select></div>
+    <button type="submit">Φιλτράρισμα</button>
+    <a class="btn ghost" href="{% url 'catalog' %}">Νέα τυχαία σειρά ↻</a>
+  </form>
+</section>
+
+{% if filtered %}
+<section class="wrap pad">
+  <p class="note">Τα αποτελέσματα εμφανίζονται σε τυχαία σειρά. Αυτή η προβολή δεν καταγράφει εμφανίσεις.</p>
+  <div class="grid">{% for party in parties %}{% include "core/_party_card.html" %}{% empty %}<p>Κανένα αποτέλεσμα.</p>{% endfor %}</div>
+</section>
+{% else %}
+<section class="wrap pad">
+  <h2 class="sec">Πλήρη προφίλ <span class="meta">{{ main|length }} από {{ n_full }} · τυχαία σειρά</span></h2>
+  <div class="grid">{% for party in main %}{% include "core/_party_card.html" %}{% empty %}<p class="note">Δεν υπάρχουν ακόμη κόμματα με πλήρες προφίλ.</p>{% endfor %}</div>
+  <p class="center"><a class="btn ghost" href="{% url 'catalog' %}?all=1">Εμφάνιση περισσότερων</a></p>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2 class="sec">Προφίλ σε εξέλιξη <span class="meta">Ξεχωριστή εναλλαγή</span></h2>
+    <p class="note">Συμπληρώνουν ακόμη τα στοιχεία τους. Έχουν το ίδιο βήμα, αλλά σε δική τους σειρά.</p>
+    <div class="grid">{% for party in progress %}{% include "core/_party_card.html" %}{% empty %}<p class="note">Κανένα προφίλ σε εξέλιξη.</p>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="wrap pad">
+  <h2 class="sec">Ομάδες υπό σύσταση <span class="meta">Ξεχωριστή ενότητα · το φίλτρο «Τύπος» τις εμφανίζει μαζί με τα κόμματα</span></h2>
+  <p class="note">Ιδέες που παίρνουν μορφή, με τις ίδιες απαιτήσεις ταυτότητας και διαφάνειας.</p>
+  <div class="grid">{% for party in groups %}{% include "core/_party_card.html" %}{% empty %}<p class="note">Καμία ομάδα υπό σύσταση.</p>{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

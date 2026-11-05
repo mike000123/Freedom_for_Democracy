@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% block title %}{{ title }} · Freedom for Democracy{% endblock %}
+{% block content %}
+<p class="note"><a href="{% url 'manage' %}">← {{ party.name }}</a></p>
+<p class="eyebrow">Η καρτέλα μου</p>
+<h1>{{ title }}</h1>
+<form method="post" class="panel" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% include "core/_form_fields.html" %}
+  <button type="submit">Αποθήκευση</button>
+  <a href="{% url 'manage' %}">Άκυρο</a>
+</form>
+{% endblock %}
