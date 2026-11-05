@@ -608,3 +608,10 @@ class QuestionnaireTests(TestCase):
         self.assertIn("stance", form.errors)
         data["stance"] = self.a.pk
         self.assertTrue(ProposalForm(data).is_valid())
+
+
+class SocialPreviewTests(TestCase):
+    def test_open_graph_image_is_absolute(self):
+        r = self.client.get(reverse("home"))
+        self.assertContains(r, 'property="og:image" content="http://testserver/static/core/og-image.jpg"')
+        self.assertContains(r, 'name="twitter:card" content="summary_large_image"')

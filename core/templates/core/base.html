@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Freedom for Democracy{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'core/style.css' %}">
+  <meta name="description" content="{% block og_description %}Κόμματα, κινήματα και πολίτες σε δημόσιο διάλογο. Ίση έκθεση για κάθε νέα πολιτική παρουσία.{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Freedom for Democracy">
+  <meta property="og:title" content="{% block og_title %}Freedom for Democracy{% endblock %}">
+  <meta property="og:description" content="{% block og_desc2 %}Κόμματα, κινήματα και πολίτες σε δημόσιο διάλογο{% endblock %}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'core/og-image.jpg' %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Freedom for Democracy: κόμματα, κινήματα και πολίτες σε δημόσιο διάλογο">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 {% if demo_banner %}<div class="banner">Τοπική δοκιμή · Υποθετικά δεδομένα</div>{% endif %}
