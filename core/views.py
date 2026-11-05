@@ -8,6 +8,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.utils.http import urlencode
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -17,7 +18,7 @@ from django.views.decorators.http import require_POST
 from . import captcha, citizens, exposure, features, ratelimit
 from .forms import ApplicationForm, CommentForm, QuestionForm
 from .members import member_party
-from .models import CitizenProposal, Comment, Decision, FeatureChange, FeatureFlag, Party, Proposal, Question, Topic
+from .models import CitizenProposal, Comment, Decision, FeatureChange, FeatureFlag, Party, PrefOption, Proposal, Question, Topic
 
 LINK_RE = re.compile(r"(https?://|www\.)", re.IGNORECASE)
 PROPOSAL_KINDS = [Comment.FOR, Comment.AGAINST, Comment.ASK]
@@ -507,3 +508,31 @@ def delete_comment(request, pk):
     else:
         messages.error(request, "Λάθος κωδικός διαγραφής.")
     return _back(comment)
+
+
+def questionnaire(request):
+    """Ανώνυμο ερωτηματολόγιο προτιμήσεων: ένα ερώτημα ανά θέμα. Το αποτέλεσμα είναι λίστα προτάσεων που ταιριάζουν
+    με την απάντηση, ανά θέμα και σε τυχαία σειρά. Δεν υπάρχει βαθμολογία ή κατάταξη κομμάτων και οι απαντήσεις
+    δεν αποθηκεύονται (το αποτέλεσμα εμφανίζεται απευθείας στην απάντηση της υποβολής)."""
+    if not features.enabled(request, "questionnaire"):
+        raise Http404
+    topics = list(Topic.objects.filter(pref_question__isnull=False).select_related("pref_question")
+                  .prefetch_related("pref_question__options"))
+    if request.method != "POST":
+        return render(request, "core/questionnaire.html", {"topics": topics})
+    results = []
+    for topic in topics:
+        raw = request.POST.get(f"q{topic.pk}", "")
+        option = next((o for o in topic.pref_question.options.all() if str(o.pk) == raw), None)
+        if option is None:
+            continue
+        base = Proposal.objects.filter(topic=topic, is_published=True, party__is_published=True)
+        matches = list(base.filter(stance=option).select_related("party"))
+        random.shuffle(matches)
+        undeclared = base.filter(stance__isnull=True).count()
+        link = ""
+        if len(matches) >= 2 and features.enabled(request, "comparison"):
+            link = reverse("compare") + "?" + urlencode([("topic", topic.slug)] + [("p", m.party.slug) for m in matches[:MAX_COMPARE]])
+        results.append({"topic": topic, "question": topic.pref_question, "option": option, "matches": matches,
+                        "undeclared": undeclared, "compare_link": link})
+    return render(request, "core/questionnaire_result.html", {"results": results, "answered": len(results), "total": len(topics)})

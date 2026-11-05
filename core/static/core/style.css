@@ -299,3 +299,14 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .mission-cols { grid-template-columns: 1fr; gap: 10px; max-width: 42em; margin: 0 auto; }
 .mission::before { width: 100%; }
 .mission-cols { max-width: 62em; }
+.qform { max-width: 760px; }
+.qitem { border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: 6px; background: var(--tint); padding: 14px 20px 10px; margin: 0 0 16px; }
+.qitem legend { font-weight: 600; padding: 0 6px; }
+.qtopic { display: inline-block; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); margin-right: 6px; }
+.qopt { display: block; padding: 6px 0; cursor: pointer; }
+.qopt input { margin-right: 8px; }
+.qopt.muted { color: var(--muted); }
+.qresult { max-width: 760px; }
+.qtopic-h { margin: 0 0 4px; font-size: 1.3rem; }
+.qmatches { margin: 8px 0 12px; padding-left: 20px; }
+.qmatches li { margin: 6px 0; }

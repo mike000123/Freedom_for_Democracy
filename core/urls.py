@@ -14,6 +14,7 @@ urlpatterns = [
     path("protasi/<int:pk>/", views.proposal_detail, name="proposal"),
     path("erotima/<int:pk>/", views.question_detail, name="question"),
     path("sygkrisi/", views.compare, name="compare"),
+    path("erotimatologio/", views.questionnaire, name="questionnaire"),
     path("health/", views.health, name="health"),
     path("aitisi/", views.apply_view, name="apply"),
     # Λογαριασμοί πολιτών και προτάσεις πολιτών

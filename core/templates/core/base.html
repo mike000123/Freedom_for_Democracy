@@ -17,6 +17,7 @@
       <a href="{% url 'catalog' %}"{% if page == 'catalog' or page == 'party' %} class="active"{% endif %}>Κόμματα και ομάδες</a>
       <a href="{% url 'topics' %}"{% if page == 'topics' or page == 'topic' or page == 'proposal' or page == 'question' %} class="active"{% endif %}>Θέματα</a>
       {% if compare_enabled %}<a href="{% url 'compare' %}"{% if page == 'compare' %} class="active"{% endif %}>Σύγκριση</a>{% endif %}
+      {% if questionnaire_enabled %}<a href="{% url 'questionnaire' %}"{% if page == 'questionnaire' %} class="active"{% endif %}>Ερωτηματολόγιο</a>{% endif %}
       <a href="{% url 'rules' %}"{% if page == 'rules' %} class="active"{% endif %}>Κανόνες</a>
       <a href="{% url 'transparency' %}"{% if page == 'transparency' %} class="active"{% endif %}>Διαφάνεια</a>
       {% if member_party %}<a href="{% url 'manage' %}"><strong>Το κόμμα μου</strong></a>{% endif %}

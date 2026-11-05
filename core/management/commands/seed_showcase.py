@@ -120,6 +120,10 @@ class Command(BaseCommand):
 
         Party.objects.filter(Q(name__startswith="Κόμμα Δείγμα") | Q(name__startswith="Ομάδα Δείγμα")).update(is_example=True)
 
+        from django.core.management import call_command
+
+        call_command("seed_questionnaire", stdout=self.stdout)
+
         if not ChangeLogEntry.objects.filter(party=party).exists():
             ChangeLogEntry.objects.create(party=party, summary="Ενημερώθηκε το προφίλ: Σύνθημα, Χρηματοδότηση")
             ChangeLogEntry.objects.create(party=party, summary="Ενημερώθηκε το βιογραφικό: Ειρήνη Δείγμα")

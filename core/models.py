@@ -163,6 +163,8 @@ class Proposal(models.Model):
     timeline = models.TextField("Χρονοδιάγραμμα", validators=[MaxWords(150)])
     metric = models.TextField("Μέτρο επιτυχίας", validators=[MaxWords(150)])
     source = models.URLField("Πηγή τεκμηρίωσης (σύνδεσμος)", blank=True)
+    stance = models.ForeignKey("PrefOption", null=True, blank=True, on_delete=models.SET_NULL, related_name="proposals",
+                               verbose_name="Θέση στο ερώτημα του ερωτηματολογίου (προαιρετικά)")
     is_published = models.BooleanField("Δημοσιευμένη", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -550,3 +552,34 @@ class PartyVideo(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.party})"
+
+
+class PrefQuestion(models.Model):
+    """Ερώτημα του ερωτηματολογίου προτιμήσεων: ένα ανά θέμα, με λίγες απαντήσεις."""
+
+    topic = models.OneToOneField(Topic, on_delete=models.CASCADE, related_name="pref_question", verbose_name="Θέμα")
+    text = models.CharField("Ερώτημα", max_length=200)
+
+    class Meta:
+        ordering = ["topic__order"]
+        verbose_name = "Ερώτημα ερωτηματολογίου"
+        verbose_name_plural = "Ερωτήματα ερωτηματολογίου"
+
+    def __str__(self):
+        return f"{self.topic.name}: {self.text}"
+
+
+class PrefOption(models.Model):
+    """Πιθανή απάντηση. Τα κόμματα δηλώνουν σε ποια απάντηση αντιστοιχεί η πρότασή τους."""
+
+    question = models.ForeignKey(PrefQuestion, on_delete=models.CASCADE, related_name="options")
+    text = models.CharField("Απάντηση", max_length=160)
+    order = models.PositiveSmallIntegerField("Σειρά", default=0)
+
+    class Meta:
+        ordering = ["question__topic__order", "order", "id"]
+        verbose_name = "Απάντηση ερωτηματολογίου"
+        verbose_name_plural = "Απαντήσεις ερωτηματολογίου"
+
+    def __str__(self):
+        return f"{self.question.topic.name}: {self.text}"

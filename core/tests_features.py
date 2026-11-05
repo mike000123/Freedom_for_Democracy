@@ -537,3 +537,74 @@ class ThreadedRepliesTests(TestCase):
         other = self.Comment.objects.create(proposal=self.prop, kind="comment", pseudonym="Β", body="άλλο", removed=True)
         self.client.post(reverse("official_reply", args=["protasi", self.prop.pk]), {"body": "Γενική", "parent": str(other.pk)})
         self.assertIsNone(self.Comment.objects.get(body="Γενική").parent_id)  # αφαιρεμένο σχόλιο: χωρίς parent
+
+
+class QuestionnaireTests(TestCase):
+    """Ανώνυμο ερωτηματολόγιο προτιμήσεων: ουδέτερο, χωρίς κατάταξη και χωρίς αποθήκευση απαντήσεων."""
+
+    def setUp(self):
+        from .models import PrefOption, PrefQuestion
+
+        self.topic = Topic.objects.create(name="Στέγαση", slug="t7")
+        q = PrefQuestion.objects.create(topic=self.topic, text="Τι πρώτα;")
+        self.a = PrefOption.objects.create(question=q, text="Απάντηση Α", order=0)
+        self.b = PrefOption.objects.create(question=q, text="Απάντηση Β", order=1)
+        self.parties = []
+        for name, opt in [("Αλφάβητο", self.a), ("Βαθμίδα", self.a), ("Γέφυρα", self.b)]:
+            party = Party.objects.create(name=name, responsible_persons="x", is_published=True)
+            Proposal.objects.create(party=party, topic=self.topic, title=f"Πρόταση {name}", problem="x", action="x", legal="x",
+                                    cost="x", tradeoffs="x", timeline="x", metric="x", source="https://example.org", stance=opt)
+            self.parties.append(party)
+
+    def _state(self, state):
+        from .models import FeatureFlag
+
+        self.client.get(reverse("home"))  # δημιουργεί τις εγγραφές διακοπτών
+        FeatureFlag.objects.filter(key="questionnaire").update(state=state)
+
+    def test_off_by_default_is_404(self):
+        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 404)
+        self.assertNotContains(self.client.get(reverse("home")), "Ερωτηματολόγιο")
+
+    def test_test_state_only_for_staff(self):
+        self._state("test")
+        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 404)
+        staff = get_user_model().objects.create_user("st", "st@example.org", "kodikos-12345", is_staff=True)
+        self.client.force_login(staff)
+        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 200)
+
+    def test_result_lists_only_matching_proposals_and_stores_nothing(self):
+        self._state("on")
+        page = self.client.get(reverse("questionnaire"))
+        self.assertContains(page, "Απάντηση Α")
+        before = Proposal.objects.count(), Impression.objects.count()
+        r = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": str(self.a.pk)})
+        self.assertContains(r, "Αλφάβητο")
+        self.assertContains(r, "Βαθμίδα")
+        self.assertNotContains(r, "Γέφυρα")
+        self.assertContains(r, "Σύγκρινε αυτές τις προτάσεις")
+        self.assertEqual(before, (Proposal.objects.count(), Impression.objects.count()))
+        self.assertNotIn("sessionid", r.cookies)
+
+    def test_unpublished_proposal_and_unanswered_topic_are_left_out(self):
+        self._state("on")
+        Proposal.objects.filter(party=self.parties[0]).update(is_published=False)
+        r = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": str(self.a.pk)})
+        self.assertNotContains(r, "Αλφάβητο")
+        self.assertContains(r, "Βαθμίδα")
+        empty = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": ""})
+        self.assertContains(empty, "Δεν απάντησες σε κανένα θέμα")
+
+    def test_party_form_rejects_option_from_another_topic(self):
+        from .forms import ProposalForm
+        from .models import PrefOption, PrefQuestion
+
+        other = Topic.objects.create(name="Υγεία", slug="t2")
+        foreign = PrefOption.objects.create(question=PrefQuestion.objects.create(topic=other, text="Υ;"), text="Άλλη")
+        data = dict(topic=self.topic.pk, title="Τ", problem="x", action="x", legal="x", cost="x", tradeoffs="x",
+                    timeline="x", metric="x", source="https://example.org", stance=foreign.pk, is_published="on")
+        form = ProposalForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("stance", form.errors)
+        data["stance"] = self.a.pk
+        self.assertTrue(ProposalForm(data).is_valid())

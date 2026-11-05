@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import PartyPerson, PartyVideo, CitizenProfile, CitizenProposal, Comment, MaxWords, Party, PartyApplication, Proposal
+from .models import PrefOption, PartyPerson, PartyVideo, CitizenProfile, CitizenProposal, Comment, MaxWords, Party, PartyApplication, Proposal
 
 
 class _GuardedForm(forms.Form):
@@ -137,10 +137,21 @@ class ProposalForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["source"].required = True
+        self.fields["stance"].queryset = PrefOption.objects.select_related("question__topic")
+        self.fields["stance"].label_from_instance = lambda o: f"{o.question.topic.name}: {o.text}"
+        self.fields["stance"].help_text = ("Το ερωτηματολόγιο προτιμήσεων δείχνει στους επισκέπτες τις προτάσεις που ταιριάζουν "
+                                           "με την απάντησή τους. Διάλεξε την απάντηση του ίδιου θέματος που ταιριάζει στην πρότασή σου.")
+
+    def clean(self):
+        data = super().clean()
+        stance, topic = data.get("stance"), data.get("topic")
+        if stance and topic and stance.question.topic_id != topic.pk:
+            self.add_error("stance", "Η απάντηση πρέπει να ανήκει στο ίδιο θέμα με την πρόταση.")
+        return data
 
     class Meta:
         model = Proposal
-        fields = ["topic", "title", "problem", "action", "legal", "cost", "tradeoffs", "timeline", "metric", "source", "is_published"]
+        fields = ["topic", "title", "problem", "action", "legal", "cost", "tradeoffs", "timeline", "metric", "source", "stance", "is_published"]
         widgets = {name: forms.Textarea(attrs={"rows": 4}) for name in
                    ["problem", "action", "legal", "cost", "tradeoffs", "timeline", "metric"]}
         help_texts = {name: "Έως 150 λέξεις." for name in

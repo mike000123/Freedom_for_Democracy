@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% block title %}Ερωτηματολόγιο προτιμήσεων · Freedom for Democracy{% endblock %}
+{% block body %}
+<section class="wrap pad-top">
+  <p class="eyebrow">Ερωτηματολόγιο προτιμήσεων</p>
+  <h1 class="display-s">Ποιες προτάσεις ταιριάζουν στη δική σου οπτική;</h1>
+  <p class="lead">Απάντησε σε όσα θέματα θέλεις. Θα δεις ποιες προτάσεις υποστηρίζουν την απάντησή σου, ανά θέμα. Δεν υπάρχει βαθμολογία ούτε κατάταξη κομμάτων, και οι απαντήσεις σου δεν αποθηκεύονται.</p>
+</section>
+<section class="wrap pad">
+  {% if topics %}
+  <form method="post" class="qform">
+    {% csrf_token %}
+    {% for t in topics %}
+    <fieldset class="qitem">
+      <legend><span class="qtopic">{{ t.name }}</span> {{ t.pref_question.text }}</legend>
+      {% for o in t.pref_question.options.all %}
+      <label class="check qopt"><input type="radio" name="q{{ t.pk }}" value="{{ o.pk }}"> {{ o.text }}</label>
+      {% endfor %}
+      <label class="check qopt muted"><input type="radio" name="q{{ t.pk }}" value="" checked> Προτιμώ να μην απαντήσω</label>
+    </fieldset>
+    {% endfor %}
+    <p><button class="btn big" type="submit">Δες τις προτάσεις που ταιριάζουν</button></p>
+  </form>
+  {% else %}
+  <p class="note">Δεν έχουν οριστεί ακόμα ερωτήματα.</p>
+  {% endif %}
+</section>
+{% endblock %}

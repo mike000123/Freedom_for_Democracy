@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.utils import timezone
 
 from . import features
-from .models import ChangeLogEntry, CitizenProfile, CitizenProposal, Comment, Decision, FeatureChange, FeatureFlag, Impression, Party, PartyApplication, PartyMember, Proposal, Question, Topic, TotpDevice
+from .models import ChangeLogEntry, CitizenProfile, CitizenProposal, Comment, Decision, FeatureChange, FeatureFlag, Impression, Party, PartyApplication, PartyMember, PrefOption, PrefQuestion, Proposal, Question, Topic, TotpDevice
 
 
 def log(subject, decision, reason):
@@ -41,6 +41,18 @@ class ProposalAdmin(admin.ModelAdmin):
     list_display = ("title", "party", "topic", "is_published", "updated_at")
     list_filter = ("topic", "is_published")
     search_fields = ("title", "party__name")
+
+
+class PrefOptionInline(admin.TabularInline):
+    model = PrefOption
+    extra = 1
+
+
+@admin.register(PrefQuestion)
+class PrefQuestionAdmin(admin.ModelAdmin):
+    """Ερωτήματα του ερωτηματολογίου προτιμήσεων. Ουδέτερη διατύπωση: οι απαντήσεις περιγράφουν προσεγγίσεις, όχι κόμματα."""
+    list_display = ("topic", "text")
+    inlines = [PrefOptionInline]
 
 
 @admin.register(Question)
