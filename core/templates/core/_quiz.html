@@ -5,6 +5,7 @@
   {% if quiz_topics %}
   <form method="post" action="{% url 'catalog' %}">
     {% csrf_token %}
+    <div class="quiz-grid">
     {% for t in quiz_topics %}
     <fieldset class="qitem">
       <legend><span class="qtopic">{{ t.name }}</span> {{ t.pref_question.text }}</legend>
@@ -14,6 +15,7 @@
       <label class="check qopt muted"><input type="radio" name="q{{ t.pk }}" value="" checked> Προτιμώ να μην απαντήσω</label>
     </fieldset>
     {% endfor %}
+    </div>
     <p class="quiz-actions"><button class="btn" type="submit">Δες τις προτάσεις που ταιριάζουν</button>
       <button class="btn ghost" type="button" popovertarget="quiz" popovertargetaction="hide">Κλείσιμο</button></p>
   </form>

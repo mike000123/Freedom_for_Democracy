@@ -309,8 +309,17 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .qtopic-h { margin: 0 0 4px; font-size: 1.3rem; }
 .qmatches { margin: 8px 0 12px; padding-left: 20px; }
 .qmatches li { margin: 6px 0; }
-.quiz-pop { max-width: 640px; max-height: 88vh; overflow: auto; }
-.quiz-pop .qitem { margin-bottom: 12px; }
+.quiz-pop { max-width: 1040px; width: calc(100% - 32px); max-height: 90vh; overflow: auto; padding: 22px 26px 0; }
+.quiz-pop form { display: block; }
+.quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 14px 0; }
+.quiz-pop .qitem { margin: 0; padding: 10px 14px 6px; min-width: 0; border: 1px solid var(--line); border-top: 3px solid var(--navy); }
+.quiz-pop .qitem legend { display: block; float: left; width: 100%; padding: 0; margin: 0 0 6px; font-size: 0.95rem; line-height: 1.35; }
+.quiz-pop .qitem legend + * { clear: both; }
+.quiz-pop .qtopic { display: block; margin: 0 0 2px; font-size: 0.72rem; }
+.quiz-pop .qopt { padding: 4px 0; font-size: 0.92rem; line-height: 1.35; display: flex; gap: 8px; align-items: flex-start; }
+.quiz-pop .qopt input { margin: 3px 0 0; flex: none; }
+.quiz-pop .qopt.muted { font-size: 0.85rem; }
+.quiz-pop .quiz-actions { position: sticky; bottom: 0; background: #fff; padding: 12px 0; margin: 0; border-top: 1px solid var(--line); }
 .quiz-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .quiz-overlay { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(22, 33, 58, 0.55); overflow: auto; padding: 24px 16px; }
 .quiz-overlay.open, .quiz-overlay:target { display: block; }
