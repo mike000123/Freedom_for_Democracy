@@ -563,25 +563,25 @@ class QuestionnaireTests(TestCase):
         FeatureFlag.objects.filter(key="questionnaire").update(state=state)
 
     def test_off_by_default_is_404(self):
-        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 404)
-        self.assertNotContains(self.client.get(reverse("home")), "Ερωτηματολόγιο")
+        self.assertNotContains(self.client.get(reverse("catalog")), "Ερωτηματολόγιο")
+        self.assertEqual(self.client.post(reverse("catalog"), {}).status_code, 404)
 
     def test_test_state_only_for_staff(self):
         self._state("test")
-        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 404)
+        self.assertNotContains(self.client.get(reverse("catalog")), "Ερωτηματολόγιο")
         staff = get_user_model().objects.create_user("st", "st@example.org", "kodikos-12345", is_staff=True)
         self.client.force_login(staff)
-        self.assertEqual(self.client.get(reverse("questionnaire")).status_code, 200)
+        self.assertContains(self.client.get(reverse("catalog")), "Ερωτηματολόγιο προτιμήσεων")
 
     def test_result_lists_only_matching_proposals_and_stores_nothing(self):
         self._state("on")
-        page = self.client.get(reverse("questionnaire"))
+        page = self.client.get(reverse("catalog"))
         self.assertContains(page, "Απάντηση Α")
         before = Proposal.objects.count(), Impression.objects.count()
-        r = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": str(self.a.pk)})
-        self.assertContains(r, "Αλφάβητο")
-        self.assertContains(r, "Βαθμίδα")
-        self.assertNotContains(r, "Γέφυρα")
+        r = self.client.post(reverse("catalog"), {f"q{self.topic.pk}": str(self.a.pk)})
+        self.assertContains(r, "Πρόταση Αλφάβητο")
+        self.assertContains(r, "Πρόταση Βαθμίδα")
+        self.assertNotContains(r, "Πρόταση Γέφυρα")
         self.assertContains(r, "Σύγκρινε αυτές τις προτάσεις")
         self.assertEqual(before, (Proposal.objects.count(), Impression.objects.count()))
         self.assertNotIn("sessionid", r.cookies)
@@ -589,10 +589,10 @@ class QuestionnaireTests(TestCase):
     def test_unpublished_proposal_and_unanswered_topic_are_left_out(self):
         self._state("on")
         Proposal.objects.filter(party=self.parties[0]).update(is_published=False)
-        r = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": str(self.a.pk)})
-        self.assertNotContains(r, "Αλφάβητο")
-        self.assertContains(r, "Βαθμίδα")
-        empty = self.client.post(reverse("questionnaire"), {f"q{self.topic.pk}": ""})
+        r = self.client.post(reverse("catalog"), {f"q{self.topic.pk}": str(self.a.pk)})
+        self.assertNotContains(r, "Πρόταση Αλφάβητο")
+        self.assertContains(r, "Πρόταση Βαθμίδα")
+        empty = self.client.post(reverse("catalog"), {f"q{self.topic.pk}": ""})
         self.assertContains(empty, "Δεν απάντησες σε κανένα θέμα")
 
     def test_party_form_rejects_option_from_another_topic(self):

@@ -21,6 +21,7 @@
         <option value="in_progress" {% if tier == "in_progress" %}selected{% endif %}>Προφίλ σε εξέλιξη</option></select></div>
     <button type="submit">Φιλτράρισμα</button>
     <a class="btn ghost" href="{% url 'catalog' %}">Νέα τυχαία σειρά ↻</a>
+    {% if quiz_topics is not None %}<button class="btn" type="button" popovertarget="quiz">Ερωτηματολόγιο προτιμήσεων</button>{% endif %}
   </form>
 </section>
 
@@ -50,4 +51,5 @@
   <div class="grid">{% for party in groups %}{% include "core/_party_card.html" %}{% empty %}<p class="note">Καμία ομάδα υπό σύσταση.</p>{% endfor %}</div>
 </section>
 {% endif %}
+{% if quiz_topics is not None %}{% include "core/_quiz.html" %}{% endif %}
 {% endblock %}

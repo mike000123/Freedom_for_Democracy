@@ -139,6 +139,9 @@ def home(request):
 def catalog(request):
     """Κόμματα και ομάδες. Χωρίς φίλτρα: τρεις ενότητες με ισότιμη εναλλαγή.
     Με φίλτρα ή ?all=1: όλα τα αποτελέσματα σε τυχαία σειρά (χωρίς καταγραφή εμφανίσεων)."""
+    quiz_on = features.enabled(request, "questionnaire")
+    if request.method == "POST" and not quiz_on:
+        raise Http404
     kind = request.GET.get("kind", "all")
     tier = request.GET.get("tier", "")
     topic_slug = request.GET.get("topic", "")
@@ -146,6 +149,12 @@ def catalog(request):
     show_all = request.GET.get("all") == "1"
     filtered = bool(q or topic_slug or tier or kind in (Party.KIND_PARTY, Party.KIND_GROUP) or show_all)
     ctx = {"topics": Topic.objects.all(), "kind": kind, "tier": tier, "topic_slug": topic_slug, "q": q, "filtered": filtered}
+    if quiz_on:
+        quiz_topics = _quiz_topics()
+        ctx["quiz_topics"] = quiz_topics
+        if request.method == "POST":
+            ctx["quiz_results"] = _quiz_results(request, quiz_topics)
+            ctx["quiz_done"] = True
     if not filtered:
         ctx["n_full"] = exposure.eligible(Party.KIND_PARTY, Party.TIER_FULL).count()
         ctx["n_progress"] = exposure.eligible(Party.KIND_PARTY, Party.TIER_PROGRESS).count()
@@ -510,16 +519,15 @@ def delete_comment(request, pk):
     return _back(comment)
 
 
-def questionnaire(request):
-    """Ανώνυμο ερωτηματολόγιο προτιμήσεων: ένα ερώτημα ανά θέμα. Το αποτέλεσμα είναι λίστα προτάσεων που ταιριάζουν
-    με την απάντηση, ανά θέμα και σε τυχαία σειρά. Δεν υπάρχει βαθμολογία ή κατάταξη κομμάτων και οι απαντήσεις
-    δεν αποθηκεύονται (το αποτέλεσμα εμφανίζεται απευθείας στην απάντηση της υποβολής)."""
-    if not features.enabled(request, "questionnaire"):
-        raise Http404
-    topics = list(Topic.objects.filter(pref_question__isnull=False).select_related("pref_question")
-                  .prefetch_related("pref_question__options"))
-    if request.method != "POST":
-        return render(request, "core/questionnaire.html", {"topics": topics})
+
+def _quiz_topics():
+    return list(Topic.objects.filter(pref_question__isnull=False).select_related("pref_question")
+                .prefetch_related("pref_question__options"))
+
+
+def _quiz_results(request, topics):
+    """Αποτέλεσμα του ανώνυμου ερωτηματολογίου προτιμήσεων: ανά θέμα, οι προτάσεις που υποστηρίζουν την απάντηση,
+    σε τυχαία σειρά. Καμία βαθμολογία ή κατάταξη κομμάτων και καμία αποθήκευση απαντήσεων."""
     results = []
     for topic in topics:
         raw = request.POST.get(f"q{topic.pk}", "")
@@ -529,10 +537,9 @@ def questionnaire(request):
         base = Proposal.objects.filter(topic=topic, is_published=True, party__is_published=True)
         matches = list(base.filter(stance=option).select_related("party"))
         random.shuffle(matches)
-        undeclared = base.filter(stance__isnull=True).count()
         link = ""
         if len(matches) >= 2 and features.enabled(request, "comparison"):
             link = reverse("compare") + "?" + urlencode([("topic", topic.slug)] + [("p", m.party.slug) for m in matches[:MAX_COMPARE]])
         results.append({"topic": topic, "question": topic.pref_question, "option": option, "matches": matches,
-                        "undeclared": undeclared, "compare_link": link})
-    return render(request, "core/questionnaire_result.html", {"results": results, "answered": len(results), "total": len(topics)})
+                        "undeclared": base.filter(stance__isnull=True).count(), "compare_link": link})
+    return results

@@ -1,0 +1,52 @@
+{# Ερωτηματολόγιο προτιμήσεων: αναδυόμενο παράθυρο στη σελίδα «Κόμματα και ομάδες» #}
+<div id="quiz" popover class="person-pop quiz-pop">
+  <h3>Ερωτηματολόγιο προτιμήσεων</h3>
+  <p class="note">Απάντησε σε όσα θέματα θέλεις. Θα δεις ποιες προτάσεις υποστηρίζουν την απάντησή σου, ανά θέμα. Δεν υπάρχει βαθμολογία ούτε κατάταξη κομμάτων και οι απαντήσεις σου δεν αποθηκεύονται.</p>
+  {% if quiz_topics %}
+  <form method="post" action="{% url 'catalog' %}">
+    {% csrf_token %}
+    {% for t in quiz_topics %}
+    <fieldset class="qitem">
+      <legend><span class="qtopic">{{ t.name }}</span> {{ t.pref_question.text }}</legend>
+      {% for o in t.pref_question.options.all %}
+      <label class="check qopt"><input type="radio" name="q{{ t.pk }}" value="{{ o.pk }}"> {{ o.text }}</label>
+      {% endfor %}
+      <label class="check qopt muted"><input type="radio" name="q{{ t.pk }}" value="" checked> Προτιμώ να μην απαντήσω</label>
+    </fieldset>
+    {% endfor %}
+    <p class="quiz-actions"><button class="btn" type="submit">Δες τις προτάσεις που ταιριάζουν</button>
+      <button class="btn ghost" type="button" popovertarget="quiz" popovertargetaction="hide">Κλείσιμο</button></p>
+  </form>
+  {% else %}
+  <p class="note">Δεν έχουν οριστεί ακόμα ερωτήματα.</p>
+  <p><button class="btn ghost" type="button" popovertarget="quiz" popovertargetaction="hide">Κλείσιμο</button></p>
+  {% endif %}
+</div>
+
+<div id="apotelesma" class="quiz-overlay{% if quiz_done %} open{% endif %}" role="dialog" aria-label="Αποτέλεσμα ερωτηματολογίου">
+  <div class="quiz-box">
+    <h2 class="qtopic-h">Προτάσεις που ταιριάζουν στις απαντήσεις σου</h2>
+    <p class="note">Δεν είναι κατάταξη. Σε κάθε θέμα βλέπεις τις προτάσεις που υποστηρίζουν την απάντησή σου, με τυχαία σειρά. Τη θέση τη δηλώνει το ίδιο το κόμμα. Οι απαντήσεις σου δεν αποθηκεύτηκαν.</p>
+    {% for r in quiz_results %}
+    <article class="panel qresult">
+      <h3 class="qtopic-h">{{ r.topic.name }}</h3>
+      <p class="note">{{ r.question.text }}</p>
+      <p><strong>Η απάντησή σου:</strong> {{ r.option.text }}</p>
+      {% if r.matches %}
+      <ul class="qmatches">
+        {% for m in r.matches %}
+        <li><a href="{% url 'party' m.party.slug %}">{{ m.party.name }}</a>{% if m.party.is_example %} <span class="pill pill-example">Παράδειγμα</span>{% endif %} · <a href="{% url 'proposal' m.pk %}">{{ m.title }}</a></li>
+        {% endfor %}
+      </ul>
+      {% if r.compare_link %}<p><a class="btn ghost" href="{{ r.compare_link }}">Σύγκρινε αυτές τις προτάσεις</a></p>{% endif %}
+      {% else %}
+      <p class="note">Καμία δημοσιευμένη πρόταση δεν έχει δηλώσει αυτή τη θέση ακόμα.</p>
+      {% endif %}
+      {% if r.undeclared %}<p class="note">{{ r.undeclared }} ακόμα προτάσεις σε αυτό το θέμα δεν έχουν δηλώσει θέση στο ερώτημα. <a href="{% url 'topic' r.topic.slug %}">Δες όλες τις προτάσεις του θέματος</a>.</p>{% endif %}
+    </article>
+    {% empty %}
+    <p class="note">Δεν απάντησες σε κανένα θέμα.</p>
+    {% endfor %}
+    <p><a class="btn ghost" href="{% url 'catalog' %}">Κλείσιμο</a></p>
+  </div>
+</div>
