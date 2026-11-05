@@ -100,6 +100,9 @@ if not DEBUG:
 CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("FD_CSRF_ORIGINS", "").split(",") if o]
 
 # --- Ρυθμίσεις πλατφόρμας ---
+# Λογαριασμοί πολιτών δείγματος με γνωστό κωδικό (demo-politis-1). Από προεπιλογή μόνο τοπικά (DEBUG).
+# Για δημόσια επίδειξη: FD_DEMO_LOGINS=1. Να μείνει κλειστό όταν υπάρχουν πραγματικοί χρήστες.
+FD_DEMO_LOGINS = os.environ.get("FD_DEMO_LOGINS", "1" if DEBUG else "0") == "1"
 FD_DEMO_BANNER = os.environ.get("FD_DEMO_BANNER", "1") == "1"
 FD_HOME_SLOTS = 6        # κόμματα με πλήρες προφίλ στην κύρια εναλλαγή
 FD_PROGRESS_SLOTS = 3    # εναλλαγή «Προφίλ σε εξέλιξη»

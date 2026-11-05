@@ -14,7 +14,7 @@ def prepare_user(user, created):
     """Σε τοπική λειτουργία (DEBUG) οι λογαριασμοί δείγματος έχουν γνωστό κωδικό, αλλιώς δεν μπορούν να συνδεθούν."""
     from django.conf import settings
 
-    if settings.DEBUG:
+    if settings.FD_DEMO_LOGINS:
         if created or not user.has_usable_password():
             user.set_password(DEMO_PASSWORD)
             user.save()
@@ -122,7 +122,7 @@ class Command(BaseCommand):
         if not ChangeLogEntry.objects.filter(party=party).exists():
             ChangeLogEntry.objects.create(party=party, summary="Ενημερώθηκε το προφίλ: Σύνθημα, Χρηματοδότηση")
             ChangeLogEntry.objects.create(party=party, summary="Ενημερώθηκε το βιογραφικό: Ειρήνη Δείγμα")
-        self.stdout.write("Λογαριασμοί πολιτών δείγματος (μόνο DEBUG), κωδικός " + DEMO_PASSWORD + ": politis-deigma@example.org, kanali-deigma@example.org, anagnostis-0@example.org")
+        self.stdout.write("Λογαριασμοί πολιτών δείγματος (μόνο με FD_DEMO_LOGINS), κωδικός " + DEMO_PASSWORD + ": politis-deigma@example.org, kanali-deigma@example.org, anagnostis-0@example.org")
         self.stdout.write(self.style.SUCCESS(f"Έτοιμο: «{NAME}» με πρόσωπα, social, βίντεο και προτάσεις σε όλα τα θέματα."))
 
     def seed_citizens(self):
