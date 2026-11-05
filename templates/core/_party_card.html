@@ -1,0 +1,14 @@
+<article class="card pcard{% if party.kind == 'group' %} group{% endif %}">
+  {% if party.image %}<div class="card-img"><img src="{{ party.image.url }}" alt="" loading="lazy"></div>
+  {% elif party.tier == 'full' and party.kind == 'party' %}<div class="card-img ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg><span>Φωτογραφία ομάδας</span></div>{% endif %}
+  <p>
+    {% if party.is_example %}<span class="pill pill-example">Παράδειγμα</span>{% endif %}
+    {% if party.kind == 'group' %}<span class="pill outline">Ομάδα υπό σύσταση</span>
+    {% elif party.tier == 'full' %}<span class="pill pill-teal">Πλήρες προφίλ</span>
+    {% else %}<span class="pill pill-soft">Σε εξέλιξη</span>{% endif %}
+    {% if party.graduated %}<span class="pill pill-accent">Απόφοιτο</span>{% endif %}
+  </p>
+  <h3><a href="{% url 'party' party.slug %}">{{ party.name }}</a></h3>
+  <p class="slogan">{{ party.slogan|default:"" }}</p>
+  <p class="card-foot"><span>{{ party.n_proposals }} προτάσεις</span>{% if party.founded_year %}<span>Ίδρυση {{ party.founded_year|stringformat:"d" }}</span>{% endif %}</p>
+</article>

@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% block title %}{{ p.title }} · Freedom for Democracy{% endblock %}
+{% block content %}
+<p class="note"><a href="{% url 'topic' p.topic.slug %}">{{ p.topic.name }}</a> · πρόταση πολίτη/οργανισμού, όχι κόμματος</p>
+<h1>{{ p.title }}</h1>
+<p>{{ p.author.display_name }} <span class="pill">{{ p.author.public_label }}</span> · επαληθευμένο email · {{ p.created_at|date:"d/m/Y" }}</p>
+<div class="panel">
+  <dl class="fields">{% for label, text in p.sections %}<dt>{{ label }}</dt><dd>{{ text }}</dd>{% endfor %}</dl>
+  <p class="note">Πηγή τεκμηρίωσης: <a class="source" href="{{ p.source }}" rel="noopener noreferrer nofollow">{{ p.source }}</a></p>
+</div>
+<form method="post" action="{% url 'citizen_proposal_report' p.pk %}" class="inline">{% csrf_token %}<button class="link" type="submit">Αναφορά παράβασης</button></form>
+{% if is_author %}<form method="post" action="{% url 'citizen_proposal_delete' p.pk %}" class="inline">{% csrf_token %}<button class="link" type="submit">Διαγραφή της πρότασής μου</button></form>{% endif %}
+{% endblock %}

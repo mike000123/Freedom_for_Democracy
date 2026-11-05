@@ -1,0 +1,7 @@
+<form method="post" action="{% url 'official_reply' kind obj_id %}" class="panel official">
+  {% csrf_token %}
+  <label for="official-body">Επίσημη απάντηση ως «{{ member_party.name }}»</label>
+  <textarea name="body" id="official-body" rows="4" maxlength="1000" required></textarea>
+  <p class="note">Εμφανίζεται με ετικέτα επίσημης απάντησης του κόμματος.</p>
+  <button type="submit">Δημοσίευση απάντησης</button>
+</form>

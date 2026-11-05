@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% block title %}Διαφάνεια · Freedom for Democracy{% endblock %}
+{% block body %}
+<section class="wrap pad-top">
+  <p class="eyebrow">Διαφάνεια</p>
+  <h1 class="display-s">Πώς λειτουργεί η προβολή</h1>
+  <p class="lead">Όλα όσα καθορίζουν ποιος εμφανίζεται, πότε και γιατί, είναι δημόσια: ο αλγόριθμος, τα στοιχεία εμφανίσεων, οι λειτουργίες του ιστότοπου και κάθε απόφαση συντονισμού.</p>
+  <div class="stats">
+    <div class="stat"><strong>{{ parties|length }}</strong><span>παρουσίες στην εναλλαγή</span></div>
+    <div class="stat"><strong>{{ n_impressions }}</strong><span>συνολικές εμφανίσεις</span></div>
+    <div class="stat"><strong class="red">{{ n_decisions_total }}</strong><span>αποφάσεις συντονισμού</span></div>
+  </div>
+</section>
+
+<section class="wrap pad">
+  <h2 class="sec">Πώς λειτουργεί η εναλλαγή</h2>
+  <div class="steps">
+    <div class="step"><span class="num">01</span><p>Εμφανίζονται πρώτα τα κόμματα με τις λιγότερες συσσωρευμένες εμφανίσεις.</p></div>
+    <div class="step"><span class="num">02</span><p>Οι ισοπαλίες λύνονται τυχαία και η σειρά εμφάνισης είναι τυχαία.</p></div>
+    <div class="step"><span class="num">03</span><p>Κλικ, δημοτικότητα και πληρωμές δεν επηρεάζουν τίποτα.</p></div>
+    <div class="step"><span class="num">04</span><p>Κόμματα με πλήρες προφίλ, προφίλ σε εξέλιξη και ομάδες υπό σύσταση έχουν χωριστές εναλλαγές με τον ίδιο αλγόριθμο.</p></div>
+  </div>
+  <p class="note">Ο κώδικας είναι ο ίδιος που τρέχει εδώ: <code>core/exposure.py</code>.</p>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2 class="sec">Εμφανίσεις ανά κόμμα</h2>
+    <table class="table">
+      <thead><tr><th>Κόμμα / ομάδα</th><th>Είδος</th><th>Συνολικές εμφανίσεις</th><th>Τελευταίες 7 ημέρες</th></tr></thead>
+      <tbody>
+      {% for p in parties %}
+        <tr><td><a href="{% url 'party' p.slug %}">{{ p.name }}</a>{% if p.graduated %} (απόφοιτο, εκτός εναλλαγής){% endif %}</td><td>{{ p.get_kind_display }}</td><td>{{ p.total }}</td><td>{{ p.week }}</td></tr>
+      {% empty %}
+        <tr><td colspan="4">Δεν υπάρχουν δεδομένα.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap pad">
+  <h2 class="sec">Λειτουργίες του ιστότοπου</h2>
+  <p class="note">Ποιες λειτουργίες είναι ενεργές και πότε άλλαξε η κατάστασή τους. Οι λειτουργίες «σε δοκιμή» φαίνονται μόνο στους διαχειριστές.</p>
+  <table class="table">
+    <thead><tr><th>Λειτουργία</th><th>Κατάσταση</th><th>Έκδοση</th></tr></thead>
+    <tbody>
+    {% for f in flags %}<tr><td><strong>{{ f.label }}</strong><br><span class="note">{{ f.description }}</span></td><td><span class="pill{% if f.state == 'on' %} pill-teal{% elif f.state == 'test' %} pill-soft{% endif %}">{{ f.get_state_display }}</span></td><td>{{ f.version }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% if flag_changes %}
+  <details class="diff"><summary>Ιστορικό αλλαγών λειτουργιών</summary>
+    <table class="table"><tbody>{% for c in flag_changes %}<tr><td class="col-date">{{ c.at|date:"d/m/Y H:i" }}</td><td>{{ c.flag.label }}: {{ c.old_state }} → {{ c.new_state }} (έκδοση {{ c.version }})</td></tr>{% endfor %}</tbody></table>
+  </details>
+  {% endif %}
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2 class="sec">Αρχείο αποφάσεων</h2>
+    <table class="table">
+      <thead><tr><th>Ημερομηνία</th><th>Απόφαση</th><th>Αντικείμενο</th><th>Αιτιολόγηση</th></tr></thead>
+      <tbody>
+      {% for d in decisions %}
+        <tr><td>{{ d.decided_at|date:"d/m/Y" }}</td><td>{{ d.get_decision_display }}</td><td>{{ d.subject }}</td><td>{{ d.reason }}</td></tr>
+      {% empty %}
+        <tr><td colspan="4">Καμία απόφαση ακόμη.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

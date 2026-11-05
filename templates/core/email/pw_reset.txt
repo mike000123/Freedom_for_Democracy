@@ -1,0 +1,5 @@
+Για να ορίσετε νέο κωδικό ανοίξτε τον σύνδεσμο:
+
+{{ protocol }}://{{ domain }}{% url 'citizen_pw_reset_confirm' uidb64=uid token=token %}
+
+Αν δεν το ζητήσατε εσείς, αγνοήστε αυτό το μήνυμα.
