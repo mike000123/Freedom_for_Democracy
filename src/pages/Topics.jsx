@@ -18,7 +18,7 @@ export function Topics() {
   const s = useData(async () => {
     const [topics, props, qs] = await Promise.all([
       q(sb.from('topics').select('id,name,slug').order('order')),
-      q(sb.from('proposals').select('topic_id').eq('is_published', true)),
+      q(sb.from('proposals').select('topic_id,party:parties!inner(is_published)').eq('is_published', true).eq('party.is_published', true)),
       q(sb.from('questions').select('topic_id').eq('removed', false)),
     ])
     return topics.map((t) => ({
@@ -60,7 +60,7 @@ export function Topic() {
     const topic = (await q(sb.from('topics').select('*').eq('slug', slug).limit(1)))[0]
     if (!topic) throw new Error('Το θέμα δεν βρέθηκε.')
     const [props, cprops, questions, parties, flags] = await Promise.all([
-      q(sb.from('proposals').select('id,title,action,party:parties(id,name,slug,kind,tier,is_example)').eq('topic_id', topic.id).eq('is_published', true)),
+      q(sb.from('proposals').select('id,title,action,party:parties!inner(id,name,slug,kind,tier,is_example,is_published)').eq('topic_id', topic.id).eq('is_published', true).eq('party.is_published', true)),
       q(sb.from('citizen_proposals').select('id,title,action,author_id').eq('topic_id', topic.id).eq('removed', false)),
       q(sb.from('questions').select('id,body,created_at,author_id').eq('topic_id', topic.id).eq('removed', false).order('created_at', { ascending: false })),
       q(sb.from('parties').select('id,name,slug').eq('is_published', true).eq('graduated', false)),
@@ -186,7 +186,7 @@ function Source({ url }) {
 export function Proposal() {
   const { id } = useParams()
   const s = useData(async () => {
-    const p = (await q(sb.from('proposals').select('*,topic:topics(name,slug),party:parties(name,slug,is_example)').eq('id', id).limit(1)))[0]
+    const p = (await q(sb.from('proposals').select('*,topic:topics(name,slug),party:parties!inner(name,slug,is_example)').eq('id', id).limit(1)))[0]
     if (!p) throw new Error('Η πρόταση δεν βρέθηκε.')
     return p
   }, [id])

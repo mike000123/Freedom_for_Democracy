@@ -11,7 +11,7 @@ export default function Home() {
     const week = new Date(Date.now() - 7 * 864e5).toISOString()
     const [parties, props, qs, answered, topics] = await Promise.all([
       q(sb.from('parties').select('id,kind,tier').eq('is_published', true)),
-      q(sb.from('proposals').select('topic_id').eq('is_published', true)),
+      q(sb.from('proposals').select('topic_id,party:parties!inner(is_published)').eq('is_published', true).eq('party.is_published', true)),
       q(sb.from('questions').select('id,created_at').eq('removed', false)),
       q(sb.from('comments').select('question_id').not('official_party_id', 'is', null).not('question_id', 'is', null)),
       q(sb.from('topics').select('id,name,slug').order('order')),
