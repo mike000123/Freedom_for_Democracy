@@ -31,5 +31,13 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Recover stuck Pages deployment a6b7de0 (temporary)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STALE_PAGES_DEPLOYMENT: a6b7de0ab2675d3159dbe1cfe93f4c401f664c0b
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/deployments/${STALE_PAGES_DEPLOYMENT}/cancel" --silent
+          status=$(gh api "repos/${GITHUB_REPOSITORY}/pages/deployments/${STALE_PAGES_DEPLOYMENT}" --jq '.status')
+          echo "::notice::Recovery requested for a6b7de0; Pages reports ${status}"
       - id: deployment
         uses: actions/deploy-pages@v4
