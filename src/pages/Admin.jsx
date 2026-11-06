@@ -115,7 +115,7 @@ function PartyEditor({ party, reload }) {
     e.preventDefault(); setMsg(null)
     const f = new FormData(e.target)
     const row = {
-      name: (f.get('name') || '').trim(), kind: f.get('kind'), tier: f.get('tier'),
+      name: (f.get('name') || '').trim(), kind: f.get('kind'), tier: f.get('tier'), profile_source: f.get('profile_source'),
       responsible_persons: (f.get('responsible_persons') || '').trim(),
       is_published: !!f.get('is_published'), graduated: !!f.get('graduated'),
       moderation_note: (f.get('moderation_note') || '').trim(),
@@ -136,6 +136,8 @@ function PartyEditor({ party, reload }) {
           <select name="kind" defaultValue={party.kind}><option value="party">Κόμμα</option><option value="group">Ομάδα υπό σύσταση</option></select></div>
         <div className="form-row"><label>Βαθμίδα προφίλ</label>
           <select name="tier" defaultValue={party.tier}><option value="in_progress">Προφίλ σε εξέλιξη</option><option value="full">Πλήρες προφίλ</option></select></div>
+        <div className="form-row"><label>Προέλευση προφίλ</label>
+          <select name="profile_source" defaultValue={party.profile_source || 'public_sources'}><option value="public_sources">Από δημόσιες πηγές (μη επιβεβαιωμένο)</option><option value="party_verified">Επιβεβαιωμένο από το κόμμα</option></select></div>
         <div className="form-row"><label>Υπεύθυνα πρόσωπα (ένα ανά γραμμή, έως 3)</label><textarea name="responsible_persons" rows={3} defaultValue={party.responsible_persons} /></div>
         <p><label><input type="checkbox" name="is_published" defaultChecked={party.is_published} /> Δημοσιευμένο</label></p>
         <p><label><input type="checkbox" name="graduated" defaultChecked={party.graduated} /> Απόφοιτο (έχει κατέβει σε εκλογές)</label></p>

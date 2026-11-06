@@ -183,6 +183,9 @@ export function Party() {
       <p>
         {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
         <span className="pill">{KIND[party.kind]}</span>
+        {!party.is_example && (party.profile_source === 'party_verified'
+          ? <span className="pill pill-teal">Επιβεβαιωμένο από το κόμμα</span>
+          : <span className="pill pill-soft">Από δημόσιες πηγές · δεν έχει επιβεβαιωθεί από το κόμμα</span>)}
         <span className={`pill${party.tier === 'full' ? ' pill-teal' : ''}`}>{TIER[party.tier]}</span>
         {party.graduated && <span className="pill pill-accent">Απόφοιτο: εκπροσωπείται στη Βουλή, εκτός εναλλαγής</span>}
       </p>
