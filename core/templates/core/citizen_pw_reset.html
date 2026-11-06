@@ -1,6 +1,0 @@
-{% extends "core/base.html" %}
-{% block title %}Επαναφορά κωδικού · Freedom for Democracy{% endblock %}
-{% block content %}
-<h1>Επαναφορά κωδικού</h1>
-<p>Δώστε το email του λογαριασμού σας.</p><form method="post" class="panel narrow">{% csrf_token %}{% include "core/_form_fields.html" %}<button type="submit">Αποστολή συνδέσμου</button></form>
-{% endblock %}

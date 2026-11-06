@@ -1,8 +1,0 @@
-{% for c in comments %}
-  {% include "core/_comment_item.html" %}
-  {% if c.reply_list %}<div class="replies">
-    {% for r in c.reply_list %}{% include "core/_comment_item.html" with c=r reply_to=c %}{% endfor %}
-  </div>{% endif %}
-{% empty %}
-  <p class="note">Δεν υπάρχουν σχόλια ακόμη.</p>
-{% endfor %}

@@ -1,16 +1,8 @@
-.venv/
-venv/
-__pycache__/
-*.pyc
-db.sqlite3
+node_modules/
+dist/
 .env
-staticfiles/
-media/
-launcher.log
-launcher.state.json
-to_be_deleted/
+.env.*
+*.log
 *.sqlite3
-
-*.docx
-.env.sh
-Claude outputs/
+_django_copy/
+_incoming/
