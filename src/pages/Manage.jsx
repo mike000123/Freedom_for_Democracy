@@ -280,7 +280,7 @@ function ProposalForm({ party, topic, row, reload, question }) {
   return (
     <div className="panel">
       <h3>{topic.name}{' '}
-        {row ? (row.is_published ? <span className="pill pill-teal">Δημοσιευμένη</span> : <span className="pill pill-soft">Πρόχειρο</span>) : <span className="pill outline">Καμία πρόταση</span>}</h3>
+        {row ? (row.is_published ? (party.is_published ? <span className="pill pill-teal">Δημοσιευμένη</span> : <span className="pill pill-teal">Έτοιμη</span>) : <span className="pill pill-soft">Πρόχειρο</span>) : <span className="pill outline">Καμία πρόταση</span>}</h3>
       {row && <p>{row.title} {row.is_published && <Link to={`/protasi/${row.id}`}>Προβολή</Link>}</p>}
       <button type="button" className="link" onClick={() => setOpen(!open)}>{open ? 'Κλείσιμο' : row ? 'Επεξεργασία' : 'Δημιουργία πρότασης'}</button>
       {open && (
@@ -296,7 +296,7 @@ function ProposalForm({ party, topic, row, reload, question }) {
                 {[...question.options].sort((a, b) => a.order - b.order).map((o) => <option key={o.id} value={o.id}>{o.text}</option>)}</select>
               <span className="note">Χρησιμοποιείται μόνο στο ερωτηματολόγιο προτιμήσεων των επισκεπτών.</span></div>
           )}
-          <p><label><input type="checkbox" name="is_published" defaultChecked={row ? row.is_published : true} /> Δημοσιευμένη (αλλιώς μένει πρόχειρο)</label></p>
+          <p><label><input type="checkbox" name="is_published" defaultChecked={row ? row.is_published : true} /> Έτοιμη για δημοσίευση (αλλιώς μένει πρόχειρο){!party.is_published && ' · θα φαίνεται σε επισκέπτες όταν δημοσιευτεί και το κόμμα'}</label></p>
           <Msg m={msg} />
           <button type="submit" disabled={busy}>Αποθήκευση</button>
         </form>
@@ -311,6 +311,7 @@ function ProposalsTab({ party, topics, proposals, reload, questions }) {
   return (
     <>
       <p className="lead">Μία πρόταση ανά θέμα, δομημένη, έως 150 λέξεις ανά πεδίο και με πηγή. Οι αλλαγές σε δημοσιευμένες προτάσεις καταγράφονται δημόσια.</p>
+      {!party.is_published && <p className="muted">Το κόμμα δεν είναι δημοσιευμένο: οι προτάσεις φαίνονται μόνο σε εσάς και στη διαχείριση, ακόμα κι αν είναι «Έτοιμες».</p>}
       {topics.map((t) => <ProposalForm key={t.id} party={party} topic={t} row={by[t.id]} reload={reload} question={questions[t.id]} />)}
     </>
   )
