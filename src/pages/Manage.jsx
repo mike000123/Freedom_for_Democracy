@@ -382,7 +382,7 @@ export default function Manage() {
       <h1>Το κόμμα μου: {party.name}</h1>
       <p>{party.is_published ? <span className="pill pill-teal">Δημοσιευμένο</span> : <span className="pill pill-soft">Μη δημοσιευμένο</span>}{' '}
         <span className="pill">{party.tier === 'full' ? 'Πλήρες προφίλ' : 'Προφίλ σε εξέλιξη'}</span>{' '}
-        {party.is_published && <Link to={`/kommata/${party.slug}`}>Δημόσια σελίδα</Link>}</p>
+        <Link to={`/kommata/${party.slug}`}>{party.is_published ? 'Δημόσια σελίδα' : 'Προεπισκόπηση σελίδας (ορατή μόνο σε εσάς και στη διαχείριση)'}</Link></p>
       <p>{TABS.map(([k, label]) => <button key={k} type="button" className={tab === k ? '' : 'ghost'} onClick={() => setTab(k)} style={{ marginRight: 6, marginBottom: 6 }}>{label}</button>)}</p>
       {tab === 'overview' && (
         <>
