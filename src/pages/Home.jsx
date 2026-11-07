@@ -129,7 +129,7 @@ export default function Home() {
           </div>
           <Link className="btn light" to="/kommata">Δες κόμματα και ομάδες →</Link>
         </div>
-        <p className="eyebrow">Θέματα</p>
+        <p className="eyebrow">Προτάσεις ανά θέμα</p>
         <h2 className="section-title">Ένα ζήτημα. Πολλές οπτικές.</h2>
         <ul className="chips">{d.topics.map((t) => <li key={t.id}><Link to={`/themata/${t.slug}`}>{t.name}</Link></li>)}</ul>
       </section>

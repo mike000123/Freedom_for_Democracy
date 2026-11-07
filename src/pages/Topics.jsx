@@ -14,7 +14,7 @@ const SECTIONS = [
 ]
 
 export function Topics() {
-  useTitle('Θέματα')
+  useTitle('Προτάσεις')
   const s = useData(async () => {
     const [topics, props, qs] = await Promise.all([
       q(sb.from('topics').select('id,name,slug').order('order')),
@@ -28,7 +28,7 @@ export function Topics() {
   return (
     <>
       <section className="wrap pad-top">
-        <p className="eyebrow">Θέματα συζήτησης</p>
+        <p className="eyebrow">Προτάσεις ανά θέμα</p>
         <h1 className="display-s">Ένα ζήτημα. Πολλές οπτικές.</h1>
         <p className="lead">Σε κάθε θέμα βλέπετε τις θέσεις όλων των κομμάτων με το ίδιο πρότυπο και μπορείτε να θέσετε ερώτημα.</p>
       </section>

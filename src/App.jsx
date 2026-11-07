@@ -52,7 +52,7 @@ export default function App() {
           <nav aria-label="Κύριο μενού">
             <NavLink to="/" end>Αρχική</NavLink>
             <NavLink to="/kommata">Κόμματα και ομάδες</NavLink>
-            <NavLink to="/themata">Θέματα</NavLink>
+            <NavLink to="/themata">Προτάσεις</NavLink>
             <NavLink to="/sygkrisi">Σύγκριση</NavLink>
             {chatOn && <NavLink to="/sizitisi">Συζήτηση</NavLink>}
             <NavLink to="/kanones">Κανόνες</NavLink>
