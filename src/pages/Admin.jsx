@@ -183,7 +183,16 @@ function NewParty() {
 
 const SRC = { public_sources: 'Δημόσιες πηγές', party_verified: 'Επιβεβαιωμένο από κόμμα' }
 
-function PartiesTable({ parties, reps, props, reload }) {
+const CHECKS = [['slogan', 'σύνθημα'], ['founded_year', 'έτος ίδρυσης'], ['responsible_persons', 'υπεύθυνα πρόσωπα'], ['founders', 'ιδρυτές'], ['funding', 'χρηματοδότηση'], ['website', 'ιστοσελίδα']]
+const filled = (v) => v !== null && v !== undefined && String(v).trim() !== ''
+// Αυτόματη πληρότητα: όλα τα βασικά πεδία συμπληρωμένα (ή με ρητό «Ν/Α») + τουλάχιστον μία δημοσιευμένη πρόταση.
+export function completeness(p, pubs) {
+  const missing = CHECKS.filter(([k]) => !filled(p[k])).map(([, l]) => l)
+  if (!pubs) missing.push('δημοσιευμένη πρόταση')
+  return missing
+}
+
+function PartiesTable({ parties, reps, props, pubs, reload }) {
   const [checked, setChecked] = useState([])
   const [draft, setDraft] = useState({})
   const [msg, setMsg] = useState(null)
@@ -206,14 +215,19 @@ function PartiesTable({ parties, reps, props, reload }) {
     parties.filter((p) => checked.includes(p.id) && ok(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], ...patch } })
     return nd
   })
+  const auto = () => setDraft((d) => {
+    const nd = { ...d }
+    parties.filter((p) => checked.includes(p.id) && editable(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], tier: completeness(p, pubs[p.id]).length ? 'in_progress' : 'full' } })
+    return nd
+  })
   const shown = parties.filter((p) => checked.includes(p.id))
   return (
     <div className="panel">
       <h3>Πίνακας κομμάτων</h3>
-      <p className="note">Δημοσίευση και «Αποφοίτησε» αλλάζουν για όλα τα κόμματα (μόνο ο διαχειριστής τα ελέγχει). Τα υπόλοιπα πεδία είναι επεξεργάσιμα μόνο στα κόμματα χωρίς συνδεδεμένο εκπρόσωπο. Μετά τις αλλαγές πατήστε «Αποθήκευση αλλαγών».</p>
+      <p className="note">Δημοσίευση και «Αποφοίτησε» αλλάζουν για όλα τα κόμματα (μόνο ο διαχειριστής τα ελέγχει). Τα υπόλοιπα πεδία είναι επεξεργάσιμα μόνο στα κόμματα χωρίς συνδεδεμένο εκπρόσωπο. Η στήλη «Πληρότητα» δείχνει αν πληρούνται τα κριτήρια για «Πλήρες προφίλ» (6 βασικά πεδία + 1 δημοσιευμένη πρόταση)· το κουμπί «Αυτόματο προφίλ» εφαρμόζει το αποτέλεσμα στα επιλεγμένα επεξεργάσιμα κόμματα και μπορείτε να το διορθώσετε χειροκίνητα. Μετά τις αλλαγές πατήστε «Αποθήκευση αλλαγών».</p>
       <div style={{ overflowX: 'auto' }}>
         <table className="table">
-          <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th></tr></thead>
+          <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th><th>Πληρότητα</th></tr></thead>
           <tbody>
             {parties.map((p) => {
               const ed = editable(p)
@@ -227,7 +241,8 @@ function PartiesTable({ parties, reps, props, reload }) {
                   <td><input type="checkbox" checked={!!val(p, 'is_published')} onChange={(e) => set(p, 'is_published', e.target.checked)} /></td>
                   <td><input type="checkbox" checked={!!val(p, 'graduated')} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
                   <td>{reps[p.id] ? `Ναι (${reps[p.id]})` : '—'}</td>
-                  <td>{props[p.id] || 0}</td>
+                  <td>{pubs[p.id] || 0}/{props[p.id] || 0}</td>
+                  <td>{(() => { const m = completeness(p, pubs[p.id]); return m.length ? <span className="pill pill-soft" title={`Λείπουν: ${m.join(', ')}`}>Λείπουν {m.length}</span> : <span className="pill pill-teal">Πληροί τα κριτήρια</span> })()}</td>
                 </tr>
               )
             })}
@@ -241,6 +256,7 @@ function PartiesTable({ parties, reps, props, reload }) {
           <button className="btn" onClick={() => bulk({ is_published: false })}>Απόσυρση</button>
           <button className="btn" onClick={() => bulk({ tier: 'full' })}>Πλήρες προφίλ</button>
           <button className="btn" onClick={() => bulk({ tier: 'in_progress' })}>Προφίλ σε εξέλιξη</button>
+          <button className="btn" onClick={auto}>Αυτόματο προφίλ (βάσει πληρότητας)</button>
           <button className="link" onClick={() => setChecked([])}>Καθαρισμός επιλογής</button>
         </div>
       )}
@@ -271,16 +287,16 @@ function Parties() {
   const s = useData(async () => {
     const parties = await q(sb.from('parties').select('*').order('created_at', { ascending: false }))
     const mem = await q(sb.from('party_members').select('party_id'))
-    const pr = await q(sb.from('proposals').select('party_id'))
+    const pr = await q(sb.from('proposals').select('party_id,is_published'))
     const count = (rows) => rows.reduce((a, r) => ({ ...a, [r.party_id]: (a[r.party_id] || 0) + 1 }), {})
-    return { parties, reps: count(mem), props: count(pr) }
+    return { parties, reps: count(mem), props: count(pr), pubs: count(pr.filter((r) => r.is_published)) }
   }, [n])
   if (!s.data) return <Loading state={s} />
   const party = s.data.parties.find((p) => p.id === sel)
   return (
     <>
       <NewParty />
-      <PartiesTable parties={s.data.parties} reps={s.data.reps} props={s.data.props} reload={() => setN(n + 1)} />
+      <PartiesTable parties={s.data.parties} reps={s.data.reps} props={s.data.props} pubs={s.data.pubs} reload={() => setN(n + 1)} />
       <div className="form-row"><label>Κόμμα ή ομάδα</label>
         <select value={sel} onChange={(e) => setSel(e.target.value)}>
           <option value="">— επιλέξτε —</option>
