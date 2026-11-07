@@ -338,3 +338,7 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .acct-edit { margin-top: 8px; }
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; background: #fff; color: var(--navy); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .icon-btn:hover { border-color: var(--navy); }
+.acct-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.acct-side { display: grid; gap: 20px; }
+.acct-grid .panel { margin: 0; max-width: none; }
+@media (max-width: 800px) { .acct-grid { grid-template-columns: 1fr; } }

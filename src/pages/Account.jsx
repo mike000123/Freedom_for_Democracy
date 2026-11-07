@@ -288,7 +288,8 @@ export function Account() {
     <div className="wrap pad">
       <h1>Ο λογαριασμός μου</h1>
 
-      <div className="panel narrow">
+      <div className="acct-grid">
+      <div className="panel">
         <h2 className="acct-h">Στοιχεία λογαριασμού</h2>
         <EditRow label="Όνομα που εμφανίζεται" display={profile?.display_name ?? '—'} fields={[{ name: 'name', label: 'Νέο όνομα (2-40 χαρακτήρες)', defaultValue: profile?.display_name || '', maxLength: 40 }]} onSave={saveName} readOnly={!profile} hint={isAdmin || partyId ? 'Το όνομα φαίνεται δημόσια δίπλα στα σχόλιά σας.' : null} />
         <EditRow label="Email" display={<>{session.user.email} <span className="pill">{verified ? 'επαληθευμένο' : 'μη επαληθευμένο'}</span></>} fields={[{ name: 'email', label: 'Νέο email', type: 'email', defaultValue: session.user.email, autoComplete: 'email' }]} onSave={saveEmail} />
@@ -298,8 +299,9 @@ export function Account() {
         {!profile && <p className="note">Δεν βρέθηκε προφίλ πολίτη για αυτόν τον λογαριασμό.</p>}
       </div>
 
+      <div className="acct-side">
       {partyId && (
-        <div className="panel narrow">
+        <div className="panel">
           <h2 className="acct-h">Το κόμμα μου</h2>
           {party ? (
             <>
@@ -319,19 +321,21 @@ export function Account() {
       )}
 
       {isAdmin && (
-        <div className="panel narrow">
+        <div className="panel">
           <h2 className="acct-h">Διαχείριση πλατφόρμας</h2>
           <p><Link className="btn" to="/diaxeirisi">Άνοιγμα διαχείρισης</Link></p>
         </div>
       )}
 
-      <div className="panel narrow">
+      <div className="panel">
         <h2 className="acct-h">Διαγραφή λογαριασμού</h2>
         <p className="note">Διαγράφονται ο λογαριασμός και όλα όσα έχετε υποβάλει (σχόλια, ερωτήματα, προτάσεις). Δεν αναιρείται.</p>
         {err && <p className="errorlist">{err}</p>}
         {confirmDel ? (
           <p><button onClick={del}>Ναι, διαγραφή του λογαριασμού μου</button>{' '}<button className="btn ghost" onClick={() => setConfirmDel(false)}>Άκυρο</button></p>
         ) : <p><button className="btn ghost" onClick={() => setConfirmDel(true)}>Διαγραφή λογαριασμού…</button></p>}
+      </div>
+      </div>
       </div>
     </div>
   )
