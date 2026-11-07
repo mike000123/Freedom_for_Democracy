@@ -144,6 +144,7 @@ export function Party() {
   const { slug } = useParams()
   const [open, setOpen] = useState(null)
   const dlg = useRef(null)
+  const { isAdmin } = useIsAdmin()
   const s = useData(async () => {
     const party = (await q(sb.from('parties').select('*').eq('slug', slug).limit(1)))[0]
     if (!party) throw new Error('Το προφίλ δεν βρέθηκε.')
@@ -179,7 +180,10 @@ export function Party() {
       <p className="crumb"><Link to="/kommata">Κόμματα και ομάδες</Link> / {party.name}</p>
       <p className="eyebrow">{KIND[party.kind]}</p>
       {img && <div className="party-img"><img src={img} alt="" /></div>}
-      <h1>{party.name}</h1>
+      <div className="head-row">
+        <h1>{party.name}</h1>
+        {!party.is_published && <Link className="btn" to={isAdmin ? '/diaxeirisi' : '/to-komma-mou'} title="Αυτή η σελίδα δεν είναι ορατή σε επισκέπτες">✕ Κλείσιμο προεπισκόπησης</Link>}
+      </div>
       <p>
         {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
         <span className="pill">{KIND[party.kind]}</span>
