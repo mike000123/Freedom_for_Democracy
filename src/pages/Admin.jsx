@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { sb, q } from '../supabase'
 import { useAuth } from '../auth'
 import { useData, useTitle, fmtDateTime, KIND } from '../util'
@@ -150,6 +150,37 @@ function PartyEditor({ party, reload }) {
   )
 }
 
+function NewParty() {
+  const nav = useNavigate()
+  const [msg, setMsg] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const create = async (e) => {
+    e.preventDefault(); setMsg(null)
+    const f = new FormData(e.target)
+    const name = (f.get('name') || '').trim()
+    if (!name) return setMsg({ text: 'Η επωνυμία είναι υποχρεωτική.' })
+    let slug = slugify(name) || 'komma'
+    setBusy(true)
+    const taken = await q(sb.from('parties').select('id').eq('slug', slug).limit(1))
+    if (taken.length) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`
+    const { data, error } = await sb.from('parties').insert({ name, slug, kind: f.get('kind') }).select('id').single()
+    setBusy(false)
+    if (error) return setMsg({ text: /duplicate|unique/i.test(error.message) ? 'Υπάρχει ήδη κόμμα ή ομάδα με αυτή την επωνυμία.' : error.message })
+    nav(`/to-komma-mou?kommatos=${data.id}`)
+  }
+  return (
+    <form onSubmit={create} className="panel">
+      <h3>Νέο κόμμα ή ομάδα</h3>
+      <p className="note">Δημιουργείται μη δημοσιευμένο, με προέλευση «Από δημόσιες πηγές». Μετά ανοίγει για να συμπληρώσετε το προφίλ και τις προτάσεις. Δεν χρειάζεται λογαριασμός εκπροσώπου.</p>
+      <div className="form-row"><label htmlFor="np-name">Επωνυμία</label><input id="np-name" name="name" maxLength={120} required /></div>
+      <div className="form-row"><label htmlFor="np-kind">Είδος</label>
+        <select id="np-kind" name="kind" defaultValue="party"><option value="party">Κόμμα</option><option value="group">Ομάδα υπό σύσταση</option></select></div>
+      <Msg m={msg} />
+      <button type="submit" disabled={busy}>{busy ? 'Δημιουργία…' : 'Δημιουργία και επεξεργασία προφίλ'}</button>
+    </form>
+  )
+}
+
 function Parties() {
   const [n, setN] = useState(0)
   const [sel, setSel] = useState('')
@@ -158,6 +189,7 @@ function Parties() {
   const party = s.data.find((p) => p.id === sel)
   return (
     <>
+      <NewParty />
       <div className="form-row"><label>Κόμμα ή ομάδα</label>
         <select value={sel} onChange={(e) => setSel(e.target.value)}>
           <option value="">— επιλέξτε —</option>
