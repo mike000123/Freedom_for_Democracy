@@ -202,14 +202,15 @@ function PartiesTable({ parties, reps, props, reload }) {
   }
   const bulk = (patch) => setDraft((d) => {
     const nd = { ...d }
-    parties.filter((p) => checked.includes(p.id) && editable(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], ...patch } })
+    const ok = (p) => editable(p) || ('is_published' in patch)
+    parties.filter((p) => checked.includes(p.id) && ok(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], ...patch } })
     return nd
   })
   const shown = parties.filter((p) => checked.includes(p.id))
   return (
     <div className="panel">
       <h3>Πίνακας κομμάτων</h3>
-      <p className="note">Επεξεργάσιμα είναι μόνο τα κόμματα χωρίς συνδεδεμένο εκπρόσωπο (δηλ. που τα διαχειρίζεστε εσείς). Τα υπόλοιπα εμφανίζονται μόνο για ανάγνωση.</p>
+      <p className="note">Δημοσίευση και «Αποφοίτησε» αλλάζουν για όλα τα κόμματα (μόνο ο διαχειριστής τα ελέγχει). Τα υπόλοιπα πεδία είναι επεξεργάσιμα μόνο στα κόμματα χωρίς συνδεδεμένο εκπρόσωπο. Μετά τις αλλαγές πατήστε «Αποθήκευση αλλαγών».</p>
       <div style={{ overflowX: 'auto' }}>
         <table className="table">
           <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th></tr></thead>
@@ -223,8 +224,8 @@ function PartiesTable({ parties, reps, props, reload }) {
                   <td>{ed ? <select value={val(p, 'kind')} onChange={(e) => set(p, 'kind', e.target.value)}>{Object.entries(KIND).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : KIND[p.kind]}</td>
                   <td>{ed ? <select value={val(p, 'tier')} onChange={(e) => set(p, 'tier', e.target.value)}>{Object.entries(TIER).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : TIER[p.tier]}</td>
                   <td>{ed ? <select value={val(p, 'profile_source')} onChange={(e) => set(p, 'profile_source', e.target.value)}>{Object.entries(SRC).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : SRC[p.profile_source]}</td>
-                  <td><input type="checkbox" checked={!!val(p, 'is_published')} disabled={!ed} onChange={(e) => set(p, 'is_published', e.target.checked)} /></td>
-                  <td><input type="checkbox" checked={!!val(p, 'graduated')} disabled={!ed} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
+                  <td><input type="checkbox" checked={!!val(p, 'is_published')} onChange={(e) => set(p, 'is_published', e.target.checked)} /></td>
+                  <td><input type="checkbox" checked={!!val(p, 'graduated')} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
                   <td>{reps[p.id] ? `Ναι (${reps[p.id]})` : '—'}</td>
                   <td>{props[p.id] || 0}</td>
                 </tr>
