@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { sb, q } from '../supabase'
 import { useAuth } from '../auth'
-import { useData, useTitle, fmtDateTime, KIND } from '../util'
+import { useData, useTitle, fmtDateTime, KIND, TIER } from '../util'
 import { Loading } from '../components'
 
 export function useIsAdmin() {
@@ -181,19 +181,109 @@ function NewParty() {
   )
 }
 
+const SRC = { public_sources: 'Δημόσιες πηγές', party_verified: 'Επιβεβαιωμένο από κόμμα' }
+
+function PartiesTable({ parties, reps, props, reload }) {
+  const [checked, setChecked] = useState([])
+  const [draft, setDraft] = useState({})
+  const [msg, setMsg] = useState(null)
+  const editable = (p) => !reps[p.id]
+  const val = (p, k) => (draft[p.id] && k in draft[p.id] ? draft[p.id][k] : p[k])
+  const set = (p, k, v) => setDraft((d) => ({ ...d, [p.id]: { ...d[p.id], [k]: v } }))
+  const toggle = (id) => setChecked((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]))
+  const dirty = Object.keys(draft).filter((id) => Object.keys(draft[id]).length)
+  const saveAll = async () => {
+    setMsg(null)
+    for (const id of dirty) {
+      const { error } = await sb.from('parties').update(draft[id]).eq('id', id)
+      if (error) return setMsg({ text: error.message })
+    }
+    setDraft({}); reload(); setMsg({ ok: true, text: 'Αποθηκεύτηκε.' })
+  }
+  const bulk = (patch) => setDraft((d) => {
+    const nd = { ...d }
+    parties.filter((p) => checked.includes(p.id) && editable(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], ...patch } })
+    return nd
+  })
+  const shown = parties.filter((p) => checked.includes(p.id))
+  return (
+    <div className="panel">
+      <h3>Πίνακας κομμάτων</h3>
+      <p className="note">Επεξεργάσιμα είναι μόνο τα κόμματα χωρίς συνδεδεμένο εκπρόσωπο (δηλ. που τα διαχειρίζεστε εσείς). Τα υπόλοιπα εμφανίζονται μόνο για ανάγνωση.</p>
+      <div style={{ overflowX: 'auto' }}>
+        <table className="table">
+          <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th></tr></thead>
+          <tbody>
+            {parties.map((p) => {
+              const ed = editable(p)
+              return (
+                <tr key={p.id}>
+                  <td><input type="checkbox" checked={checked.includes(p.id)} onChange={() => toggle(p.id)} aria-label={`Επιλογή ${p.name}`} /></td>
+                  <td><Link to={`/kommata/${p.slug}`}>{p.name}</Link>{p.is_example && <> <span className="pill pill-soft">παράδειγμα</span></>}</td>
+                  <td>{ed ? <select value={val(p, 'kind')} onChange={(e) => set(p, 'kind', e.target.value)}>{Object.entries(KIND).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : KIND[p.kind]}</td>
+                  <td>{ed ? <select value={val(p, 'tier')} onChange={(e) => set(p, 'tier', e.target.value)}>{Object.entries(TIER).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : TIER[p.tier]}</td>
+                  <td>{ed ? <select value={val(p, 'profile_source')} onChange={(e) => set(p, 'profile_source', e.target.value)}>{Object.entries(SRC).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : SRC[p.profile_source]}</td>
+                  <td><input type="checkbox" checked={!!val(p, 'is_published')} disabled={!ed} onChange={(e) => set(p, 'is_published', e.target.checked)} /></td>
+                  <td><input type="checkbox" checked={!!val(p, 'graduated')} disabled={!ed} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
+                  <td>{reps[p.id] ? `Ναι (${reps[p.id]})` : '—'}</td>
+                  <td>{props[p.id] || 0}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      {checked.length > 0 && (
+        <div className="row" style={{ gap: 8, flexWrap: 'wrap', margin: '12px 0' }}>
+          <strong>Επιλεγμένα: {checked.length}</strong>
+          <button className="btn" onClick={() => bulk({ is_published: true })}>Δημοσίευση</button>
+          <button className="btn" onClick={() => bulk({ is_published: false })}>Απόσυρση</button>
+          <button className="btn" onClick={() => bulk({ tier: 'full' })}>Πλήρες προφίλ</button>
+          <button className="btn" onClick={() => bulk({ tier: 'in_progress' })}>Προφίλ σε εξέλιξη</button>
+          <button className="link" onClick={() => setChecked([])}>Καθαρισμός επιλογής</button>
+        </div>
+      )}
+      {dirty.length > 0 && <p><button className="btn primary" onClick={saveAll}>Αποθήκευση αλλαγών ({dirty.length})</button> <button className="link" onClick={() => setDraft({})}>Ακύρωση</button></p>}
+      <Msg m={msg} />
+      {shown.length > 0 && (
+        <>
+          <h4>Στοιχεία επιλεγμένων</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead><tr><th>Στοιχείο</th>{shown.map((p) => <th key={p.id}>{p.name}</th>)}</tr></thead>
+              <tbody>
+                {[['Σύνθημα', 'slogan'], ['Έτος ίδρυσης', 'founded_year'], ['Υπεύθυνα πρόσωπα', 'responsible_persons'], ['Ιδρυτές', 'founders'], ['Χρηματοδότηση', 'funding'], ['Ιστοσελίδα', 'website'], ['Facebook', 'facebook'], ['Instagram', 'instagram'], ['X', 'x_url'], ['YouTube', 'youtube']].map(([l, k]) => (
+                  <tr key={k}><td>{l}</td>{shown.map((p) => <td key={p.id}>{p[k] || 'Ν/Α'}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 function Parties() {
   const [n, setN] = useState(0)
   const [sel, setSel] = useState('')
-  const s = useData(() => q(sb.from('parties').select('*').order('created_at', { ascending: false })), [n])
+  const s = useData(async () => {
+    const parties = await q(sb.from('parties').select('*').order('created_at', { ascending: false }))
+    const mem = await q(sb.from('party_members').select('party_id'))
+    const pr = await q(sb.from('proposals').select('party_id'))
+    const count = (rows) => rows.reduce((a, r) => ({ ...a, [r.party_id]: (a[r.party_id] || 0) + 1 }), {})
+    return { parties, reps: count(mem), props: count(pr) }
+  }, [n])
   if (!s.data) return <Loading state={s} />
-  const party = s.data.find((p) => p.id === sel)
+  const party = s.data.parties.find((p) => p.id === sel)
   return (
     <>
       <NewParty />
+      <PartiesTable parties={s.data.parties} reps={s.data.reps} props={s.data.props} reload={() => setN(n + 1)} />
       <div className="form-row"><label>Κόμμα ή ομάδα</label>
         <select value={sel} onChange={(e) => setSel(e.target.value)}>
           <option value="">— επιλέξτε —</option>
-          {s.data.map((p) => <option key={p.id} value={p.id}>{p.name}{p.is_published ? '' : ' (μη δημοσιευμένο)'}{p.is_example ? ' [παράδειγμα]' : ''}</option>)}
+          {s.data.parties.map((p) => <option key={p.id} value={p.id}>{p.name}{p.is_published ? '' : ' (μη δημοσιευμένο)'}{p.is_example ? ' [παράδειγμα]' : ''}</option>)}
         </select></div>
       {party && <PartyEditor party={party} reload={() => setN(n + 1)} />}
     </>
