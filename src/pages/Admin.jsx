@@ -130,7 +130,7 @@ function PartyEditor({ party, reload }) {
   return (
     <>
       <form onSubmit={save} className="panel" key={party.id + party.name}>
-        <h3>{party.name} {party.is_example && <span className="pill pill-example">Παράδειγμα</span>} <Link to={`/kommata/${party.slug}`}>Σελίδα</Link></h3>
+        <h3>{party.name} {party.is_example && <span className="pill pill-example">Παράδειγμα</span>} <Link to={`/kommata/${party.slug}`}>Σελίδα</Link> · <Link to={`/to-komma-mou?kommatos=${party.id}`}>Επεξεργασία προφίλ</Link></h3>
         <div className="form-row"><label>Επωνυμία</label><input name="name" maxLength={120} defaultValue={party.name} /></div>
         <div className="form-row"><label>Είδος</label>
           <select name="kind" defaultValue={party.kind}><option value="party">Κόμμα</option><option value="group">Ομάδα υπό σύσταση</option></select></div>

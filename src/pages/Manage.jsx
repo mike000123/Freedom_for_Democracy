@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { sb, q, imageUrl } from '../supabase'
 import { useAuth } from '../auth'
 import { useData, useTitle, lines, fmtDateTime } from '../util'
 import { Loading } from '../components'
+import { useIsAdmin } from './Admin'
 import { words, hasLink, dbError } from './Post'
 
 // Επιστρέφει το κόμμα του συνδεδεμένου χρήστη (party_members), ή null.
@@ -350,15 +351,11 @@ function InboxTab({ proposals, inbox }) {
 }
 
 // ───────── Σελίδα «Το κόμμα μου» ─────────
-export default function Manage() {
-  useTitle('Το κόμμα μου')
-  const { session, loading } = useAuth()
-  const { partyId, loading: ml } = useMembership()
+function ManageParty({ partyId }) {
   const [tab, setTab] = useState('overview')
   const [n, setN] = useState(0)
   const reload = () => setN((x) => x + 1)
   const s = useData(async () => {
-    if (!partyId) return null
     const [party, people, videos, proposals, topics, changes, prefq] = await Promise.all([
       q(sb.from('parties').select('*').eq('id', partyId).single()),
       q(sb.from('party_people').select('*').eq('party_id', partyId)),
@@ -376,9 +373,6 @@ export default function Manage() {
     return { party, people, videos, proposals, topics, changes, stanceQs, inbox: { questions, answered: new Set(replies.map((r) => r.parent_id)) } }
   }, [partyId, n], { keep: true })
 
-  if (loading || ml) return <Loading state={{ loading: true }} />
-  if (!session) return <Navigate to="/eisodos" replace />
-  if (!partyId) return <div className="wrap pad"><h1>Το κόμμα μου</h1><p className="note">Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποιο κόμμα ή ομάδα. Η σύνδεση γίνεται από τη διαχείριση μετά την έγκριση της αίτησης.</p></div>
   if (!s.data) return <Loading state={s} />
   const { party, people, videos, proposals, topics, changes, stanceQs, inbox } = s.data
   const names = [...new Set([...lines(party.responsible_persons), ...lines(party.founders)])]
@@ -415,5 +409,39 @@ export default function Manage() {
       {tab === 'proposals' && <ProposalsTab party={party} topics={topics} proposals={proposals} reload={reload} questions={stanceQs} />}
       {tab === 'inbox' && <InboxTab proposals={proposals} inbox={inbox} />}
     </div>
+  )
+}
+
+// Περιτύλιγμα: ο εκπρόσωπος βλέπει το κόμμα του· ο διαχειριστής επιλέγει οποιοδήποτε κόμμα (π.χ. προφίλ από δημόσιες πηγές).
+export default function Manage() {
+  useTitle('Το κόμμα μου')
+  const { session, loading } = useAuth()
+  const { partyId, loading: ml } = useMembership()
+  const { isAdmin, loading: al } = useIsAdmin()
+  const [params, setParams] = useSearchParams()
+  const list = useData(async () => (isAdmin ? q(sb.from('parties').select('id,name,is_example').order('name')) : []), [isAdmin])
+  if (loading || ml || al) return <Loading state={{ loading: true }} />
+  if (!session) return <Navigate to="/eisodos" replace />
+  const wanted = params.get('kommatos')
+  const target = isAdmin && wanted ? wanted : partyId
+  if (!isAdmin && !partyId) return <div className="wrap pad"><h1>Το κόμμα μου</h1><p className="note">Ο λογαριασμός σας δεν είναι συνδεδεμένος με κάποιο κόμμα ή ομάδα. Η σύνδεση γίνεται από τη διαχείριση μετά την έγκριση της αίτησης.</p></div>
+  return (
+    <>
+      {isAdmin && (
+        <div className="wrap pad-top">
+          <div className="panel">
+            <div className="form-row">
+              <label htmlFor="adm-party">Λειτουργία διαχειριστή: επεξεργασία κόμματος ή ομάδας</label>
+              <select id="adm-party" value={target || ''} onChange={(e) => setParams(e.target.value ? { kommatos: e.target.value } : {})}>
+                <option value="">— Επιλέξτε —</option>
+                {(list.data || []).map((p) => <option key={p.id} value={p.id}>{p.name}{p.is_example ? ' [παράδειγμα]' : ''}</option>)}
+              </select>
+            </div>
+            <p className="note">Οι αλλαγές γίνονται ως διαχειριστής. Για προφίλ που συντάσσετε από δημόσιες πηγές, κρατήστε την «Προέλευση προφίλ» στο «Από δημόσιες πηγές» (Διαχείριση → κόμμα) και βάλτε πηγή σε κάθε πρόταση.</p>
+          </div>
+        </div>
+      )}
+      {target ? <ManageParty key={target} partyId={target} /> : <div className="wrap pad"><p className="note">Επιλέξτε κόμμα ή ομάδα για να συνεχίσετε.</p></div>}
+    </>
   )
 }
