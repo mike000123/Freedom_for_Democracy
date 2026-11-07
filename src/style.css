@@ -79,6 +79,11 @@ code.big { font-size: 1.1rem; }
 .comment.removed { color: var(--muted); font-style: italic; }
 .official { border-left: 4px solid var(--navy); padding-left: 12px; background: var(--tint); }
 .note { color: var(--muted); font-size: 0.9rem; }
+.profile-completeness { min-width: 15rem; max-width: 22rem; white-space: normal; }
+.profile-completeness summary { cursor: pointer; }
+.profile-completeness summary:focus-visible { outline: 2px solid var(--navy); outline-offset: 4px; border-radius: 4px; }
+.profile-completeness ul { margin: 10px 0; padding-left: 20px; }
+.profile-completeness .note { margin: 8px 0; }
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 .source { word-break: break-all; }
 details.diff { margin-top: 6px; }

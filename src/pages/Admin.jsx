@@ -192,6 +192,21 @@ export function completeness(p, pubs) {
   return missing
 }
 
+function CompletenessStatus({ party, published, total }) {
+  const missing = completeness(party, published)
+  if (!missing.length) return <span className="pill pill-teal">Πληροί τα κριτήρια</span>
+  return (
+    <details className="profile-completeness">
+      <summary aria-label={`Πληρότητα ${party.name}: λείπουν ${missing.length} κριτήρια`}>
+        <span className="pill pill-soft">Λείπουν {missing.length}</span>
+      </summary>
+      <ul>{missing.map((label) => <li key={label}>{label}</li>)}</ul>
+      {!published && <p className="note">{total ? `Υπάρχουν ${total} πρόχειρες προτάσεις. Οι πρόχειρες δεν καλύπτουν το κριτήριο δημοσιευμένης πρότασης.` : 'Χρειάζεται τουλάχιστον μία δημοσιευμένη πρόταση.'}</p>}
+      <Link to={`/to-komma-mou?kommatos=${party.id}`}>Άνοιγμα προφίλ και προτάσεων</Link>
+    </details>
+  )
+}
+
 function PartiesTable({ parties, reps, props, pubs, reload }) {
   const [checked, setChecked] = useState([])
   const [draft, setDraft] = useState({})
@@ -225,6 +240,7 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
     <div className="panel">
       <h3>Πίνακας κομμάτων</h3>
       <p className="note">Δημοσίευση και «Αποφοίτησε» αλλάζουν για όλα τα κόμματα (μόνο ο διαχειριστής τα ελέγχει). Τα υπόλοιπα πεδία είναι επεξεργάσιμα μόνο στα κόμματα χωρίς συνδεδεμένο εκπρόσωπο. Η στήλη «Πληρότητα» δείχνει αν πληρούνται τα κριτήρια για «Πλήρες προφίλ» (6 βασικά πεδία + 1 δημοσιευμένη πρόταση)· το κουμπί «Αυτόματο προφίλ» εφαρμόζει το αποτέλεσμα στα επιλεγμένα επεξεργάσιμα κόμματα και μπορείτε να το διορθώσετε χειροκίνητα. Μετά τις αλλαγές πατήστε «Αποθήκευση αλλαγών».</p>
+      <p className="note">Πατήστε «Λείπουν…» για να δείτε αναλυτικά ποια κριτήρια χρειάζονται συμπλήρωση. Οι πρόχειρες προτάσεις δεν μετρούν ως δημοσιευμένες.</p>
       <div style={{ overflowX: 'auto' }}>
         <table className="table">
           <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th><th>Πληρότητα</th></tr></thead>
@@ -242,7 +258,7 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
                   <td><input type="checkbox" checked={!!val(p, 'graduated')} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
                   <td>{reps[p.id] ? `Ναι (${reps[p.id]})` : '—'}</td>
                   <td>{pubs[p.id] || 0}/{props[p.id] || 0}</td>
-                  <td>{(() => { const m = completeness(p, pubs[p.id]); return m.length ? <span className="pill pill-soft" title={`Λείπουν: ${m.join(', ')}`}>Λείπουν {m.length}</span> : <span className="pill pill-teal">Πληροί τα κριτήρια</span> })()}</td>
+                  <td><CompletenessStatus party={{ ...p, ...draft[p.id] }} published={pubs[p.id]} total={props[p.id]} /></td>
                 </tr>
               )
             })}
