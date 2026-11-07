@@ -327,3 +327,14 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 
 .head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .head-row .btn { margin-top: 8px; }
+
+/* Λογαριασμός: γραμμές στοιχείων με εικονίδιο επεξεργασίας */
+.acct-h { margin: 0 0 8px; font-size: 1.15rem; }
+.acct-row { padding: 12px 0; border-top: 1px solid var(--line); }
+.acct-row:first-of-type { border-top: 0; }
+.acct-label { font-weight: 700; color: var(--red); font-size: 0.9rem; }
+.acct-value { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 2px; }
+.acct-hint { margin: 4px 0 0; }
+.acct-edit { margin-top: 8px; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; background: #fff; color: var(--navy); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.icon-btn:hover { border-color: var(--navy); }
