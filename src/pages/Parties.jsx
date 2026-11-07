@@ -4,6 +4,7 @@ import { sb, q, imageUrl } from '../supabase'
 import { useData, useTitle, shuffle, lines, fmtDateTime, KIND, TIER } from '../util'
 import { Chat } from './Chat'
 import { Loading, PartyCard } from '../components'
+import SocialIcon from '../icons/SocialIcon'
 import { useIsAdmin } from './Admin'
 
 const countBy = (rows) => rows.reduce((m, r) => ((m[r.party_id] = (m[r.party_id] || 0) + 1), m), {})
@@ -135,8 +136,8 @@ export function Catalog() {
 }
 
 const SOCIALS = [
-  ['facebook', 'Facebook', 'f'], ['instagram', 'Instagram', 'IG'], ['x_url', 'X (Twitter)', 'X'],
-  ['youtube', 'YouTube', 'YT'], ['tiktok', 'TikTok', 'TT'], ['linkedin', 'LinkedIn', 'in'],
+  ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['x_url', 'X (Twitter)'],
+  ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['linkedin', 'LinkedIn'],
 ]
 const OFFICE = { held: 'Δημόσια θητεία', party: 'Κομματική θητεία' }
 
@@ -181,7 +182,20 @@ export function Party() {
       <p className="eyebrow">{KIND[party.kind]}</p>
       {img && <div className="party-img"><img src={img} alt="" /></div>}
       <div className="head-row">
-        <h1>{party.name}</h1>
+        <div className="party-heading">
+          <h1>{party.name}</h1>
+          {socials.length > 0 && (
+            <ul className="social party-social" aria-label="Κοινωνικά δίκτυα">
+              {socials.map(([k, name]) => (
+                <li key={k}>
+                  <a href={party[k]} rel="noopener noreferrer nofollow" target="_blank" aria-label={name} title={name}>
+                    <SocialIcon platform={k} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         {!party.is_published && <Link className="btn" to={isAdmin ? '/diaxeirisi' : '/to-komma-mou'} title="Αυτή η σελίδα δεν είναι ορατή σε επισκέπτες">✕ Κλείσιμο προεπισκόπησης</Link>}
       </div>
       <p>
@@ -194,13 +208,6 @@ export function Party() {
         {party.graduated && <span className="pill pill-accent">Απόφοιτο: εκπροσωπείται στη Βουλή, εκτός εναλλαγής</span>}
       </p>
       {party.slogan && <p className="lead">{party.slogan}</p>}
-      {socials.length > 0 && (
-        <ul className="social" aria-label="Κοινωνικά δίκτυα">
-          {socials.map(([k, name, abbr]) => (
-            <li key={k}><a href={party[k]} rel="noopener nofollow" target="_blank" aria-label={name} title={name}>{abbr}</a></li>
-          ))}
-        </ul>
-      )}
 
       <div className="panel">
         <dl className="fields">
