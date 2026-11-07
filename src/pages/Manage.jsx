@@ -276,6 +276,13 @@ function ProposalForm({ party, topic, row, reload, question }) {
     setOpen(false)
     reload()
   }
+  const toggle = async () => {
+    setMsg(null); setBusy(true)
+    const { error } = await sb.from('proposals').update({ is_published: !row.is_published }).eq('id', row.id)
+    setBusy(false)
+    if (error) return setMsg({ text: dbError(error.message) })
+    reload()
+  }
   const d = row || {}
   return (
     <div className="panel">
@@ -283,6 +290,11 @@ function ProposalForm({ party, topic, row, reload, question }) {
         {row ? (row.is_published ? (party.is_published ? <span className="pill pill-teal">Δημοσιευμένη</span> : <span className="pill pill-teal">Έτοιμη</span>) : <span className="pill pill-soft">Πρόχειρο</span>) : <span className="pill outline">Καμία πρόταση</span>}</h3>
       {row && <p>{row.title} {row.is_published && <Link to={`/protasi/${row.id}`}>Προβολή</Link>}</p>}
       <button type="button" className="link" onClick={() => setOpen(!open)}>{open ? 'Κλείσιμο' : row ? 'Επεξεργασία' : 'Δημιουργία πρότασης'}</button>
+      {row && !open && (
+        <>{' · '}<button type="button" className={row.is_published ? 'link' : 'btn'} disabled={busy} onClick={toggle}>
+          {row.is_published ? 'Επιστροφή σε πρόχειρο' : party.is_published ? 'Δημοσίευση πρότασης' : 'Ορισμός ως έτοιμη'}
+        </button></>
+      )}
       {open && (
         <form onSubmit={save}>
           <div className="form-row"><label>Τίτλος (η δράση σε μία πρόταση)</label><input name="title" maxLength={200} defaultValue={d.title} required /></div>
