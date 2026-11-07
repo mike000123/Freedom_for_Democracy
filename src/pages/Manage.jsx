@@ -374,7 +374,7 @@ export default function Manage() {
     const qids = questions.map((c) => c.id)
     const replies = qids.length ? await q(sb.from('comments').select('parent_id').in('parent_id', qids).eq('official_party_id', partyId)) : []
     return { party, people, videos, proposals, topics, changes, stanceQs, inbox: { questions, answered: new Set(replies.map((r) => r.parent_id)) } }
-  }, [partyId, n])
+  }, [partyId, n], { keep: true })
 
   if (loading || ml) return <Loading state={{ loading: true }} />
   if (!session) return <Navigate to="/eisodos" replace />

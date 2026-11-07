@@ -24,11 +24,12 @@ export function useTitle(t) {
 }
 
 // Φορτώνει δεδομένα και επιστρέφει {data, error, loading}.
-export function useData(fn, deps) {
+// opts.keep: στην επαναφόρτωση κρατά τα προηγούμενα δεδομένα (χωρίς αναβόσβημα της σελίδας).
+export function useData(fn, deps, opts = {}) {
   const [s, set] = useState({ data: null, error: null, loading: true })
   useEffect(() => {
     let live = true
-    set({ data: null, error: null, loading: true })
+    set((prev) => (opts.keep && prev.data ? { ...prev, error: null } : { data: null, error: null, loading: true }))
     fn().then(
       (data) => live && set({ data, error: null, loading: false }),
       (e) => live && set({ data: null, error: e.message || String(e), loading: false })
