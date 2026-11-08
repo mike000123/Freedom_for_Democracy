@@ -359,4 +359,5 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 
 .rooms-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px; align-items: start; }
 .rooms-side .panel { margin-top: 0; }
+.rooms-grid:not(:has(.rooms-side)) { grid-template-columns: 1fr; }
 @media (max-width: 800px) { .rooms-grid { grid-template-columns: 1fr; } }

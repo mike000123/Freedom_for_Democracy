@@ -60,41 +60,43 @@ export function RoomsHub() {
     <div className="wrap pad">
       <h1>Συζήτηση</h1>
       <p className="lead">Συζητήστε σε πραγματικό χρόνο, με πολίτες που έχουν επαληθευμένο email.</p>
-      <div className="panel"><h3><Link to="/sizitisi/geniko">Γενικό δωμάτιο</Link></h3><p className="note">Ανοιχτό σε όλους, για κάθε θέμα.</p></div>
-      {official.length > 0 && <><h2>Δωμάτια ανά θέμα</h2>{official.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
-      {groupsOn && (
-        <>
-          <h2>Ομάδες χρηστών</h2>
-          <p className="note">Οι δημόσιες ομάδες εμφανίζονται σε τυχαία σειρά. Σε αναφορά, οι διαχειριστές βλέπουν το μήνυμα που αναφέρεται, ακόμη και σε ιδιωτική ομάδα.</p>
-          <div className="rooms-grid">
-            <div className="rooms-side">
-          {session && profile ? (
+      <div className="rooms-grid">
+        {groupsOn && (
+          <aside className="rooms-side">
+            {session && profile ? (
+              <>
+                <form onSubmit={create} className="panel">
+                  <h3>Δημιουργία ομάδας</h3>
+                  <div className="form-row"><label>Όνομα (3 έως 60 χαρακτήρες)</label><input name="name" maxLength={60} required /></div>
+                  <div className="form-row"><label>Περιγραφή (προαιρετικά, έως 200)</label><input name="desc" maxLength={200} /></div>
+                  <div className="form-row"><label>Ορατότητα</label>
+                    <select name="visibility"><option value="public">Δημόσια (όλοι μπορούν να μπουν)</option><option value="private">Ιδιωτική (μόνο με κωδικό πρόσκλησης)</option></select></div>
+                  <button type="submit" disabled={busy}>Δημιουργία</button>
+                  <p className="note">Έως 3 ομάδες ανά λογαριασμός. Ο δημιουργός αφαιρεί μηνύματα και μέλη.</p>
+                </form>
+                <form onSubmit={byCode} className="panel">
+                  <h3>Είσοδος με κωδικό πρόσκλησης</h3>
+                  <div className="form-row"><input name="code" required placeholder="κωδικός" /></div>
+                  <button type="submit">Είσοδος</button>
+                </form>
+              </>
+            ) : <p className="panel">Για ομάδες χρειάζεστε λογαριασμό. <Link className="btn" to="/eisodos">Είσοδος</Link></p>}
+            {err && <p className="errorlist">{err}</p>}
+          </aside>
+        )}
+        <div className="rooms-main">
+          <div className="panel"><h3><Link to="/sizitisi/geniko">Γενικό δωμάτιο</Link></h3><p className="note">Ανοιχτό σε όλους, για κάθε θέμα.</p></div>
+          {official.length > 0 && <><h2>Δωμάτια ανά θέμα</h2>{official.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
+          {groupsOn && (
             <>
-              <form onSubmit={create} className="panel">
-                <h3>Δημιουργία ομάδας</h3>
-                <div className="form-row"><label>Όνομα (3 έως 60 χαρακτήρες)</label><input name="name" maxLength={60} required /></div>
-                <div className="form-row"><label>Περιγραφή (προαιρετικά, έως 200)</label><input name="desc" maxLength={200} /></div>
-                <div className="form-row"><label>Ορατότητα</label>
-                  <select name="visibility"><option value="public">Δημόσια (όλοι μπορούν να μπουν)</option><option value="private">Ιδιωτική (μόνο με κωδικό πρόσκλησης)</option></select></div>
-                <button type="submit" disabled={busy}>Δημιουργία</button>
-                <p className="note">Έως 3 ομάδες ανά λογαριασμός. Ο δημιουργός αφαιρεί μηνύματα και μέλη.</p>
-              </form>
-              <form onSubmit={byCode} className="panel">
-                <h3>Είσοδος με κωδικό πρόσκλησης</h3>
-                <div className="form-row"><input name="code" required placeholder="κωδικός" /></div>
-                <button type="submit">Είσοδος</button>
-              </form>
+              <h2>Ομάδες χρηστών</h2>
+              <p className="note">Οι δημόσιες ομάδες εμφανίζονται σε τυχαία σειρά. Σε αναφορά, οι διαχειριστές βλέπουν το μήνυμα που αναφέρεται, ακόμη και σε ιδιωτική ομάδα.</p>
+              {mine.length > 0 && <><h3>Οι ομάδες μου</h3>{mine.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
+              {open.length > 0 ? open.map((r) => <RoomItem key={r.id} r={r} topics={topics} />) : !mine.length && <p className="note">Δεν υπάρχουν ομάδες ακόμη.</p>}
             </>
-          ) : <p className="panel">Για ομάδες χρειάζεστε λογαριασμό. <Link className="btn" to="/eisodos">Είσοδος</Link></p>}
-            </div>
-            <div className="rooms-main">
-          {mine.length > 0 && <><h3>Οι ομάδες μου</h3>{mine.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
-          {open.length > 0 ? open.map((r) => <RoomItem key={r.id} r={r} topics={topics} />) : !mine.length && <p className="note">Δεν υπάρχουν ομάδες ακόμη.</p>}
-            </div>
-          </div>
-          {err && <p className="errorlist">{err}</p>}
-        </>
-      )}
+          )}
+        </div>
+      </div>
     </div>
   )
 }
