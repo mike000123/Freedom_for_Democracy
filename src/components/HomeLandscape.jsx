@@ -39,7 +39,7 @@ function LandscapeStats({ data: d }) {
           <div className="chart coverage-chart">
             <h3>Πού υπάρχουν δημοσιευμένες θέσεις;</h3>
             <p className="note">Κόμματα και ομάδες με δημοσιευμένη πρόταση ανά θέμα.</p>
-            {d.perTopic.length ? <ul className="topic-donuts">
+            {d.perTopic.length ? <ul className="topic-donuts" tabIndex={0} aria-label="Θεματικές ενότητες σε τρεις στήλες, με κατακόρυφη κύλιση" style={{ '--topic-visible-rows': Math.min(3, Math.ceil(d.perTopic.length / 3)) }}>
               {d.perTopic.map((t) => (
                 <li key={t.id}>
                   <Link to={`/themata/${t.slug}`} aria-label={`${t.name}: ${format(t.n)} από ${format(total)} προφίλ με δημοσιευμένη πρόταση`}>
@@ -53,6 +53,7 @@ function LandscapeStats({ data: d }) {
                 </li>
               ))}
             </ul> : <p className="note">Δεν έχουν καταχωριστεί ακόμη θεματικές ενότητες.</p>}
+            {d.perTopic.length > 9 && <p className="note topic-scroll-hint">Σύρε προς τα κάτω για τα υπόλοιπα {format(d.perTopic.length - 9)} θέματα.</p>}
             {!total && <p className="note">Δεν υπάρχουν ακόμη δημοσιευμένα προφίλ για καταμέτρηση.</p>}
           </div>
           <div className="chart profile-chart">
