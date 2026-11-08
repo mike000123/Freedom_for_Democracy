@@ -26,7 +26,7 @@ export default function Home() {
       <section className="wrap hero2">
         <div>
           <p className="eyebrow">Ανεξάρτητος χώρος πολιτικού διαλόγου</p>
-          <h1 className="display">Νέες ιδέες.<br />Ίση ευκαιρία.<br /><span className="red">Ανοιχτός διάλογος.</span></h1>
+          <h1 className="display">Νέες ιδέες.<br />Ίσες ευκαιρίες.<br /><span className="red">Ανοιχτός διάλογος.</span></h1>
           <p>
             <Link className="btn big" to="/kommata">Δες κόμματα και ομάδες</Link>{' '}
             <Link className="btn ghost big" to="/themata">Μπες στον διάλογο</Link>
