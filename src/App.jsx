@@ -100,7 +100,7 @@ export default function App() {
       </main>
       <footer className="site">
         <div className="wrap foot">
-          <p className="foot-title">Ο δημόσιος διάλογος<br />χρειάζεται χώρο.</p>
+          <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
           <ul className="foot-links">
             <li><Link to="/kanones">Κανόνες και απόρρητο</Link></li>
             <li><Link to="/diafaneia">Πώς λειτουργεί η προβολή</Link></li>
