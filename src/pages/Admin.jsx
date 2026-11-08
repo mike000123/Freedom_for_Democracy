@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { sb, q } from '../supabase'
+import { sb, q, partyImageUrl } from '../supabase'
 import { useAuth } from '../auth'
 import { useData, useTitle, fmtDateTime, KIND, TIER } from '../util'
 import { Loading } from '../components'
@@ -212,7 +212,7 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
   const [draft, setDraft] = useState({})
   const [msg, setMsg] = useState(null)
   const editable = (p) => !reps[p.id]
-  const COLS = [['', 36], ['Όνομα', 220], ['Είδος', 140], ['Προφίλ', 150], ['Προέλευση', 150], ['Δημοσιευμένο', 110], ['Αποφοίτησε', 100], ['Όλες οι προτάσεις έτοιμες', 130], ['Εκπρόσωπος', 100], ['Προτάσεις', 90], ['Πληρότητα', 150]]
+  const COLS = [['', 36], ['Λογότυπο', 100], ['Όνομα', 220], ['Είδος', 140], ['Προφίλ', 150], ['Προέλευση', 150], ['Δημοσιευμένο', 110], ['Αποφοίτησε', 100], ['Όλες οι προτάσεις έτοιμες', 130], ['Εκπρόσωπος', 100], ['Προτάσεις', 90], ['Πληρότητα', 150]]
   const [w, setW] = useState(COLS.map((c) => c[1]))
   const startResize = (i) => (e) => {
     e.preventDefault()
@@ -268,9 +268,11 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
           <tbody>
             {parties.map((p) => {
               const ed = editable(p)
+              const logo = partyImageUrl(p)
               return (
                 <tr key={p.id}>
                   <td><input type="checkbox" checked={checked.includes(p.id)} onChange={() => toggle(p.id)} aria-label={`Επιλογή ${p.name}`} /></td>
+                  <td><div className="admin-party-logo">{logo ? <img src={logo} alt={`Λογότυπο ${p.name}`} loading="lazy" /> : <span title="Δεν έχει οριστεί λογότυπο" aria-label="Δεν έχει οριστεί λογότυπο">—</span>}</div></td>
                   <td><Link to={`/kommata/${p.slug}`}>{p.name}</Link>{p.is_example && <> <span className="pill pill-soft">παράδειγμα</span></>}</td>
                   <td>{ed ? <select value={val(p, 'kind')} onChange={(e) => set(p, 'kind', e.target.value)}>{Object.entries(KIND).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : KIND[p.kind]}</td>
                   <td>{ed ? <select value={val(p, 'tier')} onChange={(e) => set(p, 'tier', e.target.value)}>{Object.entries(TIER).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : TIER[p.tier]}</td>
