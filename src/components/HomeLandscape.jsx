@@ -8,7 +8,6 @@ const format = (n) => n.toLocaleString('el-GR')
 const CIRC = 2 * Math.PI * 70
 
 function LandscapeStats({ data: d }) {
-  const [allTopics, setAllTopics] = useState(false)
   const total = d.parties.length
   let offset = 0
   const segments = [
@@ -40,16 +39,20 @@ function LandscapeStats({ data: d }) {
           <div className="chart coverage-chart">
             <h3>Πού υπάρχουν δημοσιευμένες θέσεις;</h3>
             <p className="note">Κόμματα και ομάδες με δημοσιευμένη πρόταση ανά θέμα.</p>
-            {d.perTopic.length ? <ul className="topic-bars">
-              {(allTopics ? d.perTopic : d.perTopic.slice(0, 6)).map((t) => (
+            {d.perTopic.length ? <ul className="topic-donuts">
+              {d.perTopic.map((t) => (
                 <li key={t.id}>
-                  <Link to={`/themata/${t.slug}`}>{t.name}</Link>
-                  <div className="bar-track" aria-hidden="true"><span className="bar-fill" style={{ width: `${total ? t.n / total * 100 : 0}%` }} /></div>
-                  <span className="topic-count">{format(t.n)} από {format(total)}</span>
+                  <Link to={`/themata/${t.slug}`} aria-label={`${t.name}: ${format(t.n)} από ${format(total)} προφίλ με δημοσιευμένη πρόταση`}>
+                    <svg className="topic-donut" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                      <circle className="donut-bg" cx="24" cy="24" r="18" fill="none" strokeWidth="6" />
+                      <circle className="seg-navy" cx="24" cy="24" r="18" fill="none" strokeWidth="6" pathLength="100" strokeDasharray={`${total ? t.n / total * 100 : 0} 100`} transform="rotate(-90 24 24)" />
+                      <text className="topic-donut-number" x="24" y="29" textAnchor="middle">{format(t.n)}</text>
+                    </svg>
+                    <span className="topic-donut-label"><span>{t.name}</span><small>από {format(total)}</small></span>
+                  </Link>
                 </li>
               ))}
             </ul> : <p className="note">Δεν έχουν καταχωριστεί ακόμη θεματικές ενότητες.</p>}
-            {d.perTopic.length > 6 && <button type="button" className="link" aria-expanded={allTopics} onClick={() => setAllTopics(!allTopics)}>{allTopics ? 'Λιγότερα θέματα' : `Όλα τα θέματα (${format(d.topics.length)})`}</button>}
             {!total && <p className="note">Δεν υπάρχουν ακόμη δημοσιευμένα προφίλ για καταμέτρηση.</p>}
           </div>
           <div className="chart profile-chart">
