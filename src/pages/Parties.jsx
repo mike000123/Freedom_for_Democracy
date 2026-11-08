@@ -196,7 +196,7 @@ export function Party() {
             </ul>
           )}
         </div>
-        {!party.is_published && <Link className="btn" to={isAdmin ? '/diaxeirisi' : '/to-komma-mou'} title="Αυτή η σελίδα δεν είναι ορατή σε επισκέπτες">✕ Κλείσιμο προεπισκόπησης</Link>}
+        {!party.is_published && <Link className="btn" to={isAdmin ? `/to-komma-mou?kommatos=${party.id}` : '/to-komma-mou'} title="Αυτή η σελίδα δεν είναι ορατή σε επισκέπτες">✕ Κλείσιμο προεπισκόπησης</Link>}
       </div>
       <p>
         {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
