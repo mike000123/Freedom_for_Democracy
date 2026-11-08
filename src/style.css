@@ -367,3 +367,13 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .rooms-side .panel { margin-top: 0; }
 .rooms-grid:not(:has(.rooms-side)) { grid-template-columns: 1fr; }
 @media (max-width: 800px) { .rooms-grid { grid-template-columns: 1fr; } }
+
+.carousel { position: relative; margin: 16px 0 32px; }
+.car-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px; }
+.car-track::-webkit-scrollbar { display: none; }
+.car-track > * { flex: 0 0 calc((100% - 48px) / 4); scroll-snap-align: start; min-width: 0; }
+.car-track .card-img { height: 110px; }
+.car-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--navy); font-size: 1.6rem; line-height: 1; padding: 0 0 4px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+.car-btn.prev { left: -14px; } .car-btn.next { right: -14px; }
+@media (max-width: 1000px) { .car-track > * { flex-basis: calc((100% - 16px) / 2); } }
+@media (max-width: 560px) { .car-track > * { flex-basis: 85%; } .car-btn.prev { left: -6px; } .car-btn.next { right: -6px; } }

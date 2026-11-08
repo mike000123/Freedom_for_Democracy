@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { partyImageUrl } from './supabase'
 import { KIND } from './util'
@@ -41,3 +42,32 @@ export function PartyCard({ party, n, pick }) {
 }
 
 export const kindLabel = (k) => KIND[k] || k
+
+// Οριζόντιο καρουζέλ: 4 κάρτες ανά σειρά, βέλη, αυτόματη κύλιση κάθε 2 δευτερόλεπτα (σταματά με ποντίκι/εστίαση).
+export function Carousel({ children, label }) {
+  const ref = useRef(null)
+  const [paused, setPaused] = useState(false)
+  const step = (dir) => {
+    const el = ref.current
+    if (!el) return
+    const card = el.firstElementChild
+    if (!card) return
+    const w = card.getBoundingClientRect().width + parseFloat(getComputedStyle(el).columnGap || 16)
+    const max = el.scrollWidth - el.clientWidth
+    if (dir > 0 && el.scrollLeft >= max - 4) el.scrollTo({ left: 0, behavior: 'smooth' })
+    else if (dir < 0 && el.scrollLeft <= 4) el.scrollTo({ left: max, behavior: 'smooth' })
+    else el.scrollBy({ left: dir * w, behavior: 'smooth' })
+  }
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const t = setInterval(() => step(1), 2000)
+    return () => clearInterval(t)
+  }, [paused])
+  return (
+    <div className="carousel" role="region" aria-label={label} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+      <button type="button" className="car-btn prev" aria-label="Προηγούμενες" onClick={() => step(-1)}>‹</button>
+      <div className="car-track" ref={ref}>{children}</div>
+      <button type="button" className="car-btn next" aria-label="Επόμενες" onClick={() => step(1)}>›</button>
+    </div>
+  )
+}

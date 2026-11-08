@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { sb, q, partyImageUrl } from '../supabase'
 import { useData, useTitle, shuffle, lines, fmtDateTime, KIND, TIER } from '../util'
 import { Chat } from './Chat'
-import { Loading, PartyCard } from '../components'
+import { Loading, PartyCard, Carousel } from '../components'
 import SocialIcon from '../icons/SocialIcon'
 import { useIsAdmin } from './Admin'
 
@@ -51,8 +51,8 @@ export function Catalog() {
     // Ισότιμη εναλλαγή: η επιλογή γίνεται στη βάση (συνάρτηση pick_parties) και καταγράφει εμφανίσεις.
     const [full, progress, groups, all_] = await Promise.all([
       q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'full', p_n: all ? 60 : 12, p_record: true })),
-      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'in_progress', p_n: 6, p_record: true })),
-      q(sb.rpc('pick_parties', { p_kind: 'group', p_tier: null, p_n: 6, p_record: true })),
+      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'in_progress', p_n: 12, p_record: true })),
+      q(sb.rpc('pick_parties', { p_kind: 'group', p_tier: null, p_n: 12, p_record: true })),
       q(sb.from('parties').select('id').eq('is_published', true).eq('graduated', false).eq('kind', 'party').eq('tier', 'full')),
     ])
     return { topics, counts, full, progress, groups, nFull: all_.length }
@@ -124,26 +124,26 @@ export function Catalog() {
         <>
           <section className="wrap pad">
             <h2 className="sec">Πλήρη προφίλ <span className="meta">{d.full.length} από {d.nFull} · τυχαία σειρά</span></h2>
-            <div className="grid">
+            <Carousel label="Πλήρη προφίλ">
               {d.full.length ? d.full.map((p) => card(p, d)) : <p className="note">Δεν υπάρχουν ακόμη κόμματα με πλήρες προφίλ.</p>}
-            </div>
+            </Carousel>
             {d.nFull > d.full.length && <p className="center"><button className="btn ghost" onClick={() => setParams({ all: '1' })}>Εμφάνιση περισσότερων</button></p>}
           </section>
           <section className="band">
             <div className="wrap">
               <h2 className="sec">Προφίλ σε εξέλιξη <span className="meta">Ξεχωριστή εναλλαγή</span></h2>
               <p className="note">Συμπληρώνουν ακόμη τα στοιχεία τους. Έχουν το ίδιο βήμα, αλλά σε δική τους σειρά.</p>
-              <div className="grid">
+              <Carousel label="Προφίλ σε εξέλιξη">
                 {d.progress.length ? d.progress.map((p) => card(p, d)) : <p className="note">Κανένα προφίλ σε εξέλιξη.</p>}
-              </div>
+              </Carousel>
             </div>
           </section>
           <section className="wrap pad">
             <h2 className="sec">Ομάδες υπό σύσταση <span className="meta">Ξεχωριστή ενότητα · το φίλτρο «Τύπος» τις εμφανίζει μαζί με τα κόμματα</span></h2>
             <p className="note">Ιδέες που παίρνουν μορφή, με τις ίδιες απαιτήσεις ταυτότητας και διαφάνειας.</p>
-            <div className="grid">
+            <Carousel label="Ομάδες υπό σύσταση">
               {d.groups.length ? d.groups.map((p) => card(p, d)) : <p className="note">Καμία ομάδα υπό σύσταση.</p>}
-            </div>
+            </Carousel>
           </section>
         </>
       )}
