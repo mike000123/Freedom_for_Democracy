@@ -100,7 +100,11 @@ export default function App() {
       </main>
       <footer className="site">
         <div className="wrap foot">
-          <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
+          <div className="foot-left">
+            <Brand footer />
+            <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
+            <p className="foot-note">Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία · Χωρίς διαφημίσεις. Καμία πληρωμή δεν επηρεάζει την έκθεση των κομμάτων.</p>
+          </div>
           <ul className="foot-links">
             <li><Link to="/kanones">Κανόνες και απόρρητο</Link></li>
             <li><Link to="/diafaneia">Πώς λειτουργεί η προβολή</Link></li>
@@ -110,10 +114,6 @@ export default function App() {
             {!session && <li><Link to="/eggrafi">Προαιρετικός λογαριασμός</Link></li>}
             {!session && <li><Link to="/eisodos">Είσοδος</Link></li>}
           </ul>
-        </div>
-        <div className="wrap foot-small foot-bottom">
-          <Brand footer />
-          <p>Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία · Χωρίς διαφημίσεις. Καμία πληρωμή δεν επηρεάζει την έκθεση των κομμάτων.</p>
         </div>
       </footer>
     </>
