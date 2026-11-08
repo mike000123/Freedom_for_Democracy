@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { sb, q, partyImageUrl } from '../supabase'
-import { useData, shuffle, truncWords } from '../util'
-import { evidenceStatus, sourceUrl } from '../homeData'
-import { Loading } from '../components'
+import { partyImageUrl } from '../supabase'
+import { shuffle } from '../util'
 import { useCoverageRotation, VISIBLE_PARTIES } from './useCoverageRotation'
 
 const format = (n) => n.toLocaleString('el-GR')
@@ -133,51 +131,55 @@ function CoverageMatrix({ data: d }) {
   )
 }
 
-function EvidenceGrid({ proposal }) {
-  const items = [
-    ['action', 'Περιγραφή μέτρου'], ['source', 'Πηγή'], ['legal', 'Νομικό πλαίσιο'],
-    ['cost', 'Κόστος και χρηματοδότηση'], ['timeline', 'Χρονοδιάγραμμα'], ['metric', 'Μέτρο επιτυχίας'],
-  ]
-  return <ul className="proposal-evidence">{items.map(([key, label]) => {
-    const status = key === 'source' ? (sourceUrl(proposal.source) ? 'recorded' : 'missing') : evidenceStatus(proposal[key])
-    const text = status === 'missing' ? 'Δεν προσδιορίζεται' : status === 'partial' ? 'Μερική αναφορά' : key === 'action' ? 'Περιγράφεται' : key === 'source' ? 'Σύνδεσμος διαθέσιμος' : 'Υπάρχει αναφορά'
-    return <li key={key} title={proposal[key] || text}><span className={`evidence-mark ${status}`} aria-hidden="true">{status === 'recorded' ? '✓' : status === 'partial' ? '◐' : ''}</span><div><strong>{label}</strong><span>{text}</span></div></li>
-  })}</ul>
+const GUIDE_FIELDS = [
+  ['Πρόβλημα', 'Ποια ανάγκη αντιμετωπίζει η πρόταση και ποιους αφορά;', 'recorded'],
+  ['Περιγραφή μέτρου', 'Τι προτείνεται να αλλάξει και πώς θα εφαρμοστεί;', 'recorded'],
+  ['Νομικό πλαίσιο', 'Ποιες αλλαγές σε νόμους ή θεσμούς απαιτούνται;', 'partial'],
+  ['Κόστος και χρηματοδότηση', 'Πόσο κοστίζει και από πού θα βρεθούν οι πόροι;', 'missing'],
+  ['Επιπτώσεις και αντισταθμίσματα', 'Ποιοι επηρεάζονται και ποιοι κίνδυνοι ή συμβιβασμοί υπάρχουν;', 'partial'],
+  ['Χρονοδιάγραμμα', 'Πότε ξεκινά και σε ποια στάδια θα υλοποιηθεί;', 'partial'],
+  ['Μέτρο επιτυχίας', 'Με ποια στοιχεία θα αξιολογηθεί το αποτέλεσμα;', 'missing'],
+  ['Πηγή', 'Πού μπορείς να διαβάσεις την τεκμηρίωση της πρότασης;', 'recorded'],
+]
+const GUIDE_STATES = [
+  ['recorded', 'Υπάρχει στοιχείο', 'Το κείμενο δίνει σχετική πληροφορία.'],
+  ['partial', 'Μερική αναφορά', 'Υπάρχει αναφορά, με ελλείψεις ή ασάφειες.'],
+  ['missing', 'Δεν προσδιορίζεται', 'Το στοιχείο δεν αναφέρεται ή δηλώνεται ότι λείπει.'],
+]
+
+function EvidenceMark({ status }) {
+  return <span className={`evidence-mark ${status}`} aria-hidden="true">{status === 'recorded' ? '✓' : ''}</span>
 }
 
-function FeaturedProposal({ data: d }) {
-  // Give each participating profile an equal chance before choosing one of its proposals.
-  const [chosen] = useState(() => {
-    const ids = new Set(d.proposals.map((p) => p.party_id))
-    const party = shuffle(d.parties.filter((p) => ids.has(p.id)))[0]
-    return party ? { party, proposal: shuffle(d.proposals.filter((p) => p.party_id === party.id))[0] } : null
-  })
-  const s = useData(async () => {
-    if (!chosen) return null
-    return (await q(sb.from('proposals').select('id,title,action,legal,cost,timeline,metric,source,party:parties!inner(is_published,is_example,graduated)')
-      .eq('id', chosen.proposal.id).eq('is_published', true).eq('party.is_published', true).eq('party.is_example', false).eq('party.graduated', false).limit(1)))[0] || null
-  }, [chosen?.proposal.id])
-  const topic = chosen && d.topics.find((t) => t.id === chosen.proposal.topic_id)
+function ProposalGuide() {
   return (
     <section className="wrap landscape-section proposal-preview" aria-labelledby="proposal-preview-title">
       <h2 id="proposal-preview-title" className="section-title">Τι περιλαμβάνει μια πρόταση;</h2>
-      <p className="note">Τα διαθέσιμα στοιχεία φαίνονται πριν ανοίξεις ολόκληρο το κείμενο. Η πρόταση εμφανίζεται σε τυχαία εναλλαγή.</p>
-      {s.loading || s.error ? <Loading state={s} /> : s.data ? <article className="proposal-preview-card">
-        <p className="proposal-preview-meta"><Link className="pill" to={`/themata/${topic.slug}`}>{topic.name}</Link><Link to={`/kommata/${chosen.party.slug}`}>{chosen.party.name}</Link></p>
-        <h3><Link to={`/protasi/${s.data.id}`}>{s.data.title}</Link></h3>
-        <p className="note proposal-preview-excerpt">{truncWords(s.data.action, 36)}</p>
-        <EvidenceGrid proposal={s.data} />
-        <p className="note evidence-explainer">Οι ενδείξεις αφορούν τις αναφορές του κειμένου. Δεν αποτελούν έλεγχο ακρίβειας, κοστολόγησης ή εφικτότητας. «Μερική αναφορά» σημαίνει ότι το κείμενο δηλώνει και ελλείψεις.</p>
-        <div className="proposal-preview-bottom">
-          <p className="note">{chosen.party.profile_source === 'party_verified' ? <span className="pill">Επιβεβαιωμένο από το κόμμα</span> : <><span className="pill">Από δημόσιες πηγές</span><span>Δεν έχει επιβεβαιωθεί από το κόμμα</span></>}</p>
-          <Link className="btn ghost" to={`/protasi/${s.data.id}`}>Διάβασε την πρόταση →</Link>
-        </div>
-      </article> : <div className="coverage-empty"><p>Δεν υπάρχουν ακόμη διαθέσιμες δημοσιευμένες προτάσεις για προεπισκόπηση.</p><Link to="/themata">Εξερεύνησε τις θεματικές ενότητες →</Link></div>}
+      <p className="note">Δες πώς παρουσιάζονται οι προτάσεις, ποια στοιχεία αναζητούμε και τι σημαίνουν οι ενδείξεις τους.</p>
+      <article className="proposal-preview-card">
+        <p className="proposal-preview-meta"><span className="pill">Ενδεικτικό παράδειγμα</span><span className="pill">Υγεία</span></p>
+        <h3>Ενίσχυση της πρωτοβάθμιας φροντίδας</h3>
+        <p className="note proposal-preview-excerpt">Περισσότερες τοπικές μονάδες υγείας και πρόσβαση σε οικογενειακό γιατρό.</p>
+        <p className="note evidence-example-note">Υποθετική πρόταση για να γνωρίσεις το κοινό πρότυπο παρουσίασης. Οι παρακάτω ενδείξεις είναι ενδεικτικές.</p>
+        <ul className="proposal-evidence evidence-guide-grid">{GUIDE_FIELDS.map(([label, question, status]) => (
+          <li key={label}><EvidenceMark status={status} /><div>
+            <strong>{label}</strong>
+            <span>{GUIDE_STATES.find(([key]) => key === status)[1]}</span>
+            <p className="evidence-question">{question}</p>
+          </div></li>
+        ))}</ul>
+        <h4 className="evidence-legend-title">Τι σημαίνουν τα σύμβολα;</h4>
+        <ul className="evidence-guide-legend">{GUIDE_STATES.map(([status, label, description]) => (
+          <li key={status}><EvidenceMark status={status} /><div><strong>{label}</strong><p>{description}</p></div></li>
+        ))}</ul>
+        <p className="note evidence-explainer">Οι ενδείξεις αφορούν την πληρότητα της καταχώρισης. Η ακρίβεια και η εφικτότητα μιας πρότασης απαιτούν ξεχωριστό έλεγχο.</p>
+        <div className="proposal-preview-bottom"><Link className="btn ghost" to="/themata">Δες τις δημοσιευμένες προτάσεις →</Link></div>
+      </article>
       <p className="landscape-motto">Ίδια στοιχεία. Κοινό πρότυπο. Δική σου κρίση.</p>
     </section>
   )
 }
 
 export default function HomeLandscape({ data }) {
-  return <><LandscapeStats data={data} /><CoverageMatrix data={data} /><FeaturedProposal data={data} /></>
+  return <><LandscapeStats data={data} /><CoverageMatrix data={data} /><ProposalGuide /></>
 }

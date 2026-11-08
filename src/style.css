@@ -195,8 +195,23 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .proposal-evidence li div > span { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 3px; }
 .evidence-mark { display: inline-flex; align-items: center; justify-content: center; width: 23px; height: 23px; flex: none; border: 2px solid #788196; border-radius: 50%; margin-top: 1px; }
 .evidence-mark.recorded { background: var(--navy); border-color: var(--navy); color: #fff; font-size: 14px; }
-.evidence-mark.partial { border: 0; color: var(--navy); font-size: 26px; line-height: 1; }
+.evidence-mark.partial { border-color: var(--navy); background: linear-gradient(90deg, var(--navy) 50%, transparent 50%); }
 .evidence-explainer { font-size: 0.8rem; margin: 12px 0 24px; }
+.evidence-example-note { font-size: 0.85rem; }
+.evidence-guide-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.evidence-guide-grid li > div { min-width: 0; overflow-wrap: anywhere; }
+.evidence-question { margin: 10px 0 0; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+.evidence-legend-title { margin: 24px 0 12px; font-size: 1rem; }
+.evidence-guide-legend { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0 0 20px; padding: 18px; background: var(--tint); border-radius: 6px; }
+.evidence-guide-legend li { display: flex; gap: 10px; align-items: flex-start; }
+.evidence-guide-legend strong { font-size: 0.9rem; }
+.evidence-guide-legend p { margin: 6px 0 0; color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 1100px) {
+  .evidence-guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .evidence-guide-legend { grid-template-columns: 1fr; }
+}
 .proposal-preview-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 .proposal-preview-bottom .note { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; font-size: 0.8rem; }
 .proposal-preview-bottom .pill { margin: 0; }
