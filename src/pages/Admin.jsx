@@ -212,6 +212,16 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
   const [draft, setDraft] = useState({})
   const [msg, setMsg] = useState(null)
   const editable = (p) => !reps[p.id]
+  const COLS = [['', 36], ['Όνομα', 220], ['Είδος', 140], ['Προφίλ', 150], ['Προέλευση', 150], ['Δημοσιευμένο', 110], ['Αποφοίτησε', 100], ['Όλες οι προτάσεις έτοιμες', 130], ['Εκπρόσωπος', 100], ['Προτάσεις', 90], ['Πληρότητα', 150]]
+  const [w, setW] = useState(COLS.map((c) => c[1]))
+  const startResize = (i) => (e) => {
+    e.preventDefault()
+    const x0 = e.clientX, w0 = w[i]
+    const move = (ev) => setW((a) => a.map((v, j) => (j === i ? Math.max(40, w0 + ev.clientX - x0) : v)))
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up) }
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up)
+  }
+  const ready = (p) => (draft[p.id] && '_ready' in draft[p.id] ? draft[p.id]._ready : (props[p.id] || 0) > 0 && pubs[p.id] === props[p.id])
   const val = (p, k) => (draft[p.id] && k in draft[p.id] ? draft[p.id][k] : p[k])
   const set = (p, k, v) => setDraft((d) => ({ ...d, [p.id]: { ...d[p.id], [k]: v } }))
   const toggle = (id) => setChecked((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]))
@@ -219,14 +229,21 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
   const saveAll = async () => {
     setMsg(null)
     for (const id of dirty) {
-      const { error } = await sb.from('parties').update(draft[id]).eq('id', id)
-      if (error) return setMsg({ text: error.message })
+      const { _ready, ...patch } = draft[id]
+      if (Object.keys(patch).length) {
+        const { error } = await sb.from('parties').update(patch).eq('id', id)
+        if (error) return setMsg({ text: error.message })
+      }
+      if (_ready !== undefined) {
+        const { error } = await sb.from('proposals').update({ is_published: _ready }).eq('party_id', id)
+        if (error) return setMsg({ text: error.message })
+      }
     }
     setDraft({}); reload(); setMsg({ ok: true, text: 'Αποθηκεύτηκε.' })
   }
   const bulk = (patch) => setDraft((d) => {
     const nd = { ...d }
-    const ok = (p) => editable(p) || ('is_published' in patch)
+    const ok = (p) => editable(p) || ('is_published' in patch) || ('_ready' in patch)
     parties.filter((p) => checked.includes(p.id) && ok(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], ...patch } })
     return nd
   })
@@ -242,8 +259,12 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
       <p className="note">Δημοσίευση και «Αποφοίτησε» αλλάζουν για όλα τα κόμματα (μόνο ο διαχειριστής τα ελέγχει). Τα υπόλοιπα πεδία είναι επεξεργάσιμα μόνο στα κόμματα χωρίς συνδεδεμένο εκπρόσωπο. Η στήλη «Πληρότητα» δείχνει αν πληρούνται τα κριτήρια για «Πλήρες προφίλ» (6 βασικά πεδία + 1 δημοσιευμένη πρόταση)· το κουμπί «Αυτόματο προφίλ» εφαρμόζει το αποτέλεσμα στα επιλεγμένα επεξεργάσιμα κόμματα και μπορείτε να το διορθώσετε χειροκίνητα. Μετά τις αλλαγές πατήστε «Αποθήκευση αλλαγών».</p>
       <p className="note">Πατήστε «Λείπουν…» για να δείτε αναλυτικά ποια κριτήρια χρειάζονται συμπλήρωση. Οι πρόχειρες προτάσεις δεν μετρούν ως δημοσιευμένες.</p>
       <div style={{ overflowX: 'auto' }}>
-        <table className="table">
-          <thead><tr><th></th><th>Όνομα</th><th>Είδος</th><th>Προφίλ</th><th>Προέλευση</th><th>Δημοσιευμένο</th><th>Αποφοίτησε</th><th>Εκπρόσωπος</th><th>Προτάσεις</th><th>Πληρότητα</th></tr></thead>
+        <table className="table" style={{ tableLayout: 'fixed', width: w.reduce((a, b) => a + b, 0) }}>
+          <colgroup>{w.map((v, i) => <col key={i} style={{ width: v }} />)}</colgroup>
+          <thead><tr>{COLS.map(([l], i) => (
+            <th key={i} style={{ position: 'relative' }}>{l}
+              <span onMouseDown={startResize(i)} title="Σύρετε για αλλαγή πλάτους" style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 6, cursor: 'col-resize', borderRight: '2px solid #cbd5e1' }} />
+            </th>))}</tr></thead>
           <tbody>
             {parties.map((p) => {
               const ed = editable(p)
@@ -256,6 +277,7 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
                   <td>{ed ? <select value={val(p, 'profile_source')} onChange={(e) => set(p, 'profile_source', e.target.value)}>{Object.entries(SRC).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select> : SRC[p.profile_source]}</td>
                   <td><input type="checkbox" checked={!!val(p, 'is_published')} onChange={(e) => set(p, 'is_published', e.target.checked)} /></td>
                   <td><input type="checkbox" checked={!!val(p, 'graduated')} onChange={(e) => set(p, 'graduated', e.target.checked)} /></td>
+                  <td><input type="checkbox" checked={!!ready(p)} disabled={!props[p.id]} onChange={(e) => set(p, '_ready', e.target.checked)} title={props[p.id] ? 'Όλες οι προτάσεις του κόμματος σε κατάσταση «Έτοιμη»' : 'Δεν υπάρχουν προτάσεις'} /></td>
                   <td>{reps[p.id] ? `Ναι (${reps[p.id]})` : '—'}</td>
                   <td>{pubs[p.id] || 0}/{props[p.id] || 0}</td>
                   <td><CompletenessStatus party={{ ...p, ...draft[p.id] }} published={pubs[p.id]} total={props[p.id]} /></td>
@@ -270,6 +292,7 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
           <strong>Επιλεγμένα: {checked.length}</strong>
           <button className="btn" onClick={() => bulk({ is_published: true })}>Δημοσίευση</button>
           <button className="btn" onClick={() => bulk({ is_published: false })}>Απόσυρση</button>
+          <button className="btn" onClick={() => bulk({ _ready: true })}>Όλες οι προτάσεις έτοιμες</button>
           <button className="btn" onClick={() => bulk({ tier: 'full' })}>Πλήρες προφίλ</button>
           <button className="btn" onClick={() => bulk({ tier: 'in_progress' })}>Προφίλ σε εξέλιξη</button>
           <button className="btn" onClick={auto}>Αυτόματο προφίλ (βάσει πληρότητας)</button>
