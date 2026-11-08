@@ -185,10 +185,10 @@ const SRC = { public_sources: 'Δημόσιες πηγές', party_verified: 'Ε
 
 const CHECKS = [['slogan', 'σύνθημα'], ['founded_year', 'έτος ίδρυσης'], ['responsible_persons', 'υπεύθυνα πρόσωπα'], ['founders', 'ιδρυτές'], ['funding', 'χρηματοδότηση'], ['website', 'ιστοσελίδα']]
 const filled = (v) => v !== null && v !== undefined && String(v).trim() !== ''
-// Αυτόματη πληρότητα: όλα τα βασικά πεδία συμπληρωμένα (ή με ρητό «Ν/Α») + τουλάχιστον μία δημοσιευμένη πρόταση.
+// Αυτόματη πληρότητα: όλα τα βασικά πεδία συμπληρωμένα (ή με ρητό «Ν/Α») + τουλάχιστον μία έτοιμη ή δημοσιευμένη πρόταση.
 export function completeness(p, pubs) {
   const missing = CHECKS.filter(([k]) => !filled(p[k])).map(([, l]) => l)
-  if (!pubs) missing.push('δημοσιευμένη πρόταση')
+  if (!pubs) missing.push('έτοιμη ή δημοσιευμένη πρόταση')
   return missing
 }
 
@@ -201,7 +201,7 @@ function CompletenessStatus({ party, published, total }) {
         <span className="pill pill-soft">Λείπουν {missing.length}</span>
       </summary>
       <ul>{missing.map((label) => <li key={label}>{label}</li>)}</ul>
-      {!published && <p className="note">{total ? `Υπάρχουν ${total} πρόχειρες προτάσεις. Οι πρόχειρες δεν καλύπτουν το κριτήριο δημοσιευμένης πρότασης.` : 'Χρειάζεται τουλάχιστον μία δημοσιευμένη πρόταση.'}</p>}
+      {!published && <p className="note">{total ? `${total === 1 ? 'Υπάρχει 1 πρόχειρη πρόταση.' : `Υπάρχουν ${total} πρόχειρες προτάσεις.`} Χρειάζεται τουλάχιστον μία έτοιμη ή δημοσιευμένη πρόταση. Οι πρόχειρες δεν προσμετρώνται.` : 'Χρειάζεται τουλάχιστον μία έτοιμη ή δημοσιευμένη πρόταση.'}</p>}
       <Link to={`/to-komma-mou?kommatos=${party.id}`}>Άνοιγμα προφίλ και προτάσεων</Link>
     </details>
   )
