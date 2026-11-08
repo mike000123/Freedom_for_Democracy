@@ -88,14 +88,16 @@ function CoverageMatrix({ data: d }) {
       <div className="coverage-panel">
         <p className="eyebrow">Θεματική κάλυψη</p>
         <h2 id="coverage-title" className="section-title">Ποιος έχει πρόταση για τι;</h2>
-        <p className="note">Δες σε ποια θέματα έχει δημοσιευμένη πρόταση κάθε κόμμα ή ομάδα. Πάτησε το ✓ για να τη διαβάσεις.</p>
-        <div className="coverage-rotation-bar">
-          <p className="note">{format(parties.length)} προφίλ · έως {VISIBLE_PARTIES} ορατά κάθε φορά · τυχαία αρχική σειρά</p>
+        <div className="coverage-intro">
+          <div className="coverage-intro-copy">
+            <p className="note">Δες σε ποια θέματα έχει δημοσιευμένη πρόταση κάθε κόμμα ή ομάδα. Πάτησε το ✓ για να τη διαβάσεις.</p>
+            <p className="note coverage-count">{format(parties.length)} προφίλ · έως {VISIBLE_PARTIES} ορατά κάθε φορά · τυχαία αρχική σειρά</p>
+            {!!parties.length && !!topics.length && <p className="note coverage-scroll-hint">Σύρετε οριζόντια για τα θέματα και κατακόρυφα για τα υπόλοιπα προφίλ.</p>}
+          </div>
           {parties.length > VISIBLE_PARTIES && topics.length > 0 && <button type="button" className="btn ghost" onClick={rotation.toggle}>{rotation.paused ? 'Συνέχεια κύλισης' : 'Παύση κύλισης'}</button>}
         </div>
         {parties.length && topics.length ? (
           <>
-            <p className="note coverage-scroll-hint">Σύρετε οριζόντια για τα θέματα και κατακόρυφα για τα υπόλοιπα προφίλ.</p>
             <div className="coverage-scroll coverage-rotating" style={{ '--coverage-visible-rows': Math.min(VISIBLE_PARTIES, parties.length), '--coverage-topic-count': topics.length }} ref={rotation.ref} {...rotation.interactions} tabIndex={0} role="region" aria-label="Θεματική κάλυψη όλων των κομμάτων και ομάδων, με έξι ορατές γραμμές και κύλιση">
               <table className="coverage-table">
                 <caption className="sr-only">Δημοσιευμένες προτάσεις ανά κόμμα και θέμα. Το σημάδι ελέγχου ανοίγει την πρόταση.</caption>
@@ -105,7 +107,7 @@ function CoverageMatrix({ data: d }) {
                   const duplicate = i >= parties.length
                   const tabIndex = duplicate ? -1 : undefined
                   return <tr key={`${duplicate ? 'repeat' : 'party'}-${p.id}`} aria-hidden={duplicate || undefined}>
-                    <th scope="row"><Link className="coverage-party" to={`/kommata/${p.slug}`} tabIndex={tabIndex} title={p.name}>
+                    <th scope="row"><Link className={`coverage-party${p.kind === 'group' ? ' coverage-party-group' : ''}`} to={`/kommata/${p.slug}`} tabIndex={tabIndex} title={p.name}>
                       <PartyMark party={p} />
                       <span><span className="coverage-name">{p.name}</span>{p.kind === 'group' && <small>Ομάδα υπό σύσταση</small>}</span>
                     </Link></th>

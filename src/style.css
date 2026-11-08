@@ -141,9 +141,11 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .coverage-panel { border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
 .coverage-panel > .eyebrow { margin-top: 0; }
 .coverage-panel h2 { margin-bottom: 12px; }
-.coverage-rotation-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 20px 0 12px; }
-.coverage-rotation-bar .note { margin: 0; font-size: 0.85rem; }
-.coverage-rotation-bar .btn { min-height: 44px; font-size: 0.85rem; }
+.coverage-intro { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+.coverage-intro-copy { flex: 1; min-width: 0; }
+.coverage-intro-copy > .note { margin: 0; line-height: 1.45; }
+.coverage-count { font-size: 0.85rem; }
+.coverage-intro > .btn { flex: none; min-height: 44px; font-size: 0.85rem; }
 .coverage-scroll { overflow: auto; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
 .coverage-scroll:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 .coverage-scroll-hint { font-size: 0.8rem; }
@@ -548,9 +550,9 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .home-page .profile-chart .chart-foot { margin: 12px 0 0; padding-top: 10px; }
 .home-page .landscape-section { padding-top: 24px; padding-bottom: 8px; }
 .home-page .coverage-panel { padding: 20px; }
-.home-page .coverage-rotation-bar { margin: 12px 0 8px; }
-.home-page .coverage-rotating { --coverage-row-height: 68px; }
-.home-page .coverage-table th, .home-page .coverage-table td { padding: 6px 10px; }
+.home-page .coverage-rotating { --coverage-row-height: 54px; }
+.home-page .coverage-table th, .home-page .coverage-table td { padding: 4px 10px; }
+.home-page .coverage-party-group .coverage-name { -webkit-line-clamp: 1; }
 .home-page .coverage-party small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home-page .coverage-bottom { gap: 8px 20px; margin-top: 12px; }
 .home-page .proposal-preview { padding-bottom: 24px; }
@@ -577,7 +579,9 @@ main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top
   .home-page .landscape-stats .stat { padding: 12px 10px; }
   .home-page .landscape-charts .chart { padding: 16px 14px; }
   .home-page .coverage-panel { padding: 14px 12px; }
-  .home-page .coverage-rotating { --coverage-row-height: 72px; }
+  .home-page .coverage-rotating { --coverage-row-height: 56px; }
+  .coverage-intro { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .coverage-intro-copy { width: 100%; }
   .home-page .proposal-preview-card { padding: 16px 14px; }
   .home-page .evidence-guide-grid li { display: block; padding: 10px; }
   .home-page .evidence-guide-grid .evidence-mark { float: left; width: 18px; height: 18px; margin: 1px 6px 0 0; font-size: 11px; }
