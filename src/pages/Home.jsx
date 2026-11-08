@@ -23,6 +23,7 @@ export default function Home() {
 
   return (
     <div className="home-page">
+      <div className="hero-bleed">
       <section className="wrap hero2">
         <div>
           <p className="eyebrow">Ανεξάρτητος χώρος πολιτικού διαλόγου</p>
@@ -41,6 +42,7 @@ export default function Home() {
           </ol>
         </aside>
       </section>
+      </div>
 
       <section className="wrap mission">
         <p className="eyebrow">Γιατί υπάρχει η πλατφόρμα</p>

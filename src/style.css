@@ -611,3 +611,13 @@ main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top
 @media (max-width: 700px) { .foot-note { margin-top: 0; } }
 
 .foot-head { display: flex; align-items: center; gap: 16px 28px; flex-wrap: wrap; }
+
+.hero-bleed { background: #16213a url('./assets/hero-bg.jpg') no-repeat left center; background-size: auto 100%; position: relative; }
+.hero-bleed::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(22,33,58,.62) 0%, rgba(22,33,58,.35) 45%, rgba(22,33,58,0) 75%); pointer-events: none; }
+.hero-bleed > .hero2 { position: relative; }
+.hero-bleed .eyebrow { color: #f0a08a; }
+.hero-bleed .display { color: #fff; }
+.hero-bleed .display .red { color: #f0a08a; }
+.hero-bleed .btn.ghost { color: #fff; border-color: #fff; background: transparent; }
+@media (max-width: 900px) { .hero-bleed { background-size: cover; } }
+.hero-bleed .btn:not(.ghost) { background: #fff; color: #16213a; border-color: #fff; }
