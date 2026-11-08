@@ -379,8 +379,8 @@ function ManageParty({ partyId }) {
   const names = [...new Set([...lines(party.responsible_persons), ...lines(party.founders)])]
   const filled = names.filter((x) => people.some((p) => p.name === x)).length
   const checks = [
-    ['Λογότυπο ή φωτογραφία', !!partyImageUrl(party)], ['Σύνθημα', !!party.slogan], ['Έτος ίδρυσης', !!party.founded_year], ['Ιδρυτές', !!party.founders],
-    ['Χρηματοδότηση', !!party.funding], ['Διακήρυξη', !!(party.manifesto || party.manifesto_url)], ['Ιστοσελίδα ή κοινωνικά δίκτυα', !!(party.website || party.facebook || party.instagram || party.x_url || party.youtube || party.tiktok || party.linkedin)],
+    ['Λογότυπο ή φωτογραφία', !!partyImageUrl(party)], ['Έτος ίδρυσης', !!party.founded_year], ['Ιδρυτές', !!party.founders],
+    ['Διακήρυξη', !!(party.manifesto || party.manifesto_url)], ['Ιστοσελίδα ή κοινωνικά δίκτυα', !!(party.website || party.facebook || party.instagram || party.x_url || party.youtube || party.tiktok || party.linkedin)],
     [`Βιογραφικά (${filled}/${names.length})`, names.length > 0 && filled === names.length], ['Τουλάχιστον ένα βίντεο', videos.length > 0],
     [`Προτάσεις (${proposals.filter((p) => p.is_published).length}/${topics.length} θέματα)`, proposals.filter((p) => p.is_published).length === topics.length],
   ]
@@ -399,6 +399,7 @@ function ManageParty({ partyId }) {
         <>
           <div className="panel"><h3>Πληρότητα προφίλ</h3>
             <ul>{checks.map(([l, ok]) => <li key={l}>{ok ? '✓' : '○'} {l}</li>)}</ul>
+            <p className="note">Το σύνθημα και η χρηματοδότηση μπορούν να συμπληρωθούν στο προφίλ, χωρίς να επηρεάζουν την ένδειξη πληρότητας.</p>
             <p className="note">Το όνομα, το είδος, η βαθμίδα και η δημοσίευση αλλάζουν μόνο από τη διαχείριση.</p></div>
           <div className="panel"><h3>Πρόσφατες αλλαγές</h3>
             {changes.length ? <ul>{changes.map((c) => <li key={c.id}>{fmtDateTime(c.at)} · {c.summary}</li>)}</ul> : <p className="note">Καμία ακόμη.</p>}</div>
