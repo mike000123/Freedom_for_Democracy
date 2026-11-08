@@ -252,6 +252,15 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
     parties.filter((p) => checked.includes(p.id) && editable(p)).forEach((p) => { nd[p.id] = { ...nd[p.id], tier: completeness(p, pubs[p.id]).length ? 'in_progress' : 'full' } })
     return nd
   })
+  const [delOpen, setDelOpen] = useState(false)
+  const [delText, setDelText] = useState('')
+  const doDelete = async () => {
+    setMsg(null)
+    const { error } = await sb.from('parties').delete().in('id', checked)
+    if (error) return setMsg({ text: error.message })
+    setChecked([]); setDraft({}); setDelOpen(false); setDelText(''); reload()
+    setMsg({ ok: true, text: 'Τα επιλεγμένα διαγράφηκαν.' })
+  }
   const shown = parties.filter((p) => checked.includes(p.id))
   return (
     <div className="panel">
@@ -298,7 +307,19 @@ function PartiesTable({ parties, reps, props, pubs, reload }) {
           <button className="btn" onClick={() => bulk({ tier: 'full' })}>Πλήρες προφίλ</button>
           <button className="btn" onClick={() => bulk({ tier: 'in_progress' })}>Προφίλ σε εξέλιξη</button>
           <button className="btn" onClick={auto}>Αυτόματο προφίλ (βάσει πληρότητας)</button>
+          <button className="btn" style={{ color: '#b0432d', borderColor: '#b0432d' }} onClick={() => { setDelOpen(true); setDelText('') }}>Διαγραφή επιλεγμένων</button>
           <button className="link" onClick={() => setChecked([])}>Καθαρισμός επιλογής</button>
+        </div>
+      )}
+      {delOpen && checked.length > 0 && (
+        <div className="panel" style={{ borderColor: '#b0432d' }}>
+          <h4>Οριστική διαγραφή {checked.length} κομμάτων/ομάδων</h4>
+          <ul>{parties.filter((p) => checked.includes(p.id)).map((p) => <li key={p.id}>{p.name}{reps[p.id] ? ' (έχει συνδεδεμένο εκπρόσωπο)' : ''}</li>)}</ul>
+          <p className="note">Διαγράφονται μαζί τους τα πρόσωπα, τα βίντεο, οι προτάσεις και το ιστορικό αλλαγών. Η ενέργεια δεν αναιρείται. Οι λογαριασμοί εκπροσώπων μένουν, αλλά αποσυνδέονται.</p>
+          <div className="form-row"><label htmlFor="del-confirm">Για επιβεβαίωση γράψτε τον αριθμό {checked.length}</label>
+            <input id="del-confirm" value={delText} onChange={(e) => setDelText(e.target.value)} inputMode="numeric" /></div>
+          <button className="btn" style={{ background: '#b0432d', color: '#fff' }} disabled={delText.trim() !== String(checked.length)} onClick={doDelete}>Διαγραφή οριστικά</button>{' '}
+          <button className="link" onClick={() => setDelOpen(false)}>Ακύρωση</button>
         </div>
       )}
       {dirty.length > 0 && <p><button className="btn primary" onClick={saveAll}>Αποθήκευση αλλαγών ({dirty.length})</button> <button className="link" onClick={() => setDraft({})}>Ακύρωση</button></p>}
