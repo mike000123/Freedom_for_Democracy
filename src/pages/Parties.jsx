@@ -50,9 +50,9 @@ export function Catalog() {
     }
     // Ισότιμη εναλλαγή: η επιλογή γίνεται στη βάση (συνάρτηση pick_parties) και καταγράφει εμφανίσεις.
     const [full, progress, groups, all_] = await Promise.all([
-      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'full', p_n: all ? 60 : 12, p_record: true })),
-      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'in_progress', p_n: 12, p_record: true })),
-      q(sb.rpc('pick_parties', { p_kind: 'group', p_tier: null, p_n: 12, p_record: true })),
+      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'full', p_n: 60, p_record: true })),
+      q(sb.rpc('pick_parties', { p_kind: 'party', p_tier: 'in_progress', p_n: 60, p_record: true })),
+      q(sb.rpc('pick_parties', { p_kind: 'group', p_tier: null, p_n: 60, p_record: true })),
       q(sb.from('parties').select('id').eq('is_published', true).eq('graduated', false).eq('kind', 'party').eq('tier', 'full')),
     ])
     return { topics, counts, full, progress, groups, nFull: all_.length }

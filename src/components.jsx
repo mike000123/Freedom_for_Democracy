@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Children, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { partyImageUrl } from './supabase'
 import { KIND } from './util'
@@ -66,7 +66,7 @@ export function Carousel({ children, label }) {
   return (
     <div className="carousel" role="region" aria-label={label} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
       <button type="button" className="car-btn prev" aria-label="Προηγούμενες" onClick={() => step(-1)}>‹</button>
-      <div className="car-track" ref={ref}>{children}</div>
+      <div className="car-track" ref={ref} style={{ gridTemplateRows: Children.count(children) > 4 ? 'auto auto' : 'auto' }}>{children}</div>
       <button type="button" className="car-btn next" aria-label="Επόμενες" onClick={() => step(1)}>›</button>
     </div>
   )
