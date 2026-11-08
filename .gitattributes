@@ -1,0 +1,2 @@
+# Preserve original vendor SVG bytes, including their CRLF line endings.
+public/party-logos/*.svg -text whitespace=cr-at-eol

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
-import { sb, q, imageUrl } from '../supabase'
+import { sb, q, partyImageUrl } from '../supabase'
 import { useAuth } from '../auth'
 import { useData, useTitle, lines, fmtDateTime } from '../util'
 import { Loading } from '../components'
@@ -70,7 +70,7 @@ export function OfficialReply({ column, id, parentId, partyId, onDone }) {
 function ProfileTab({ party, reload }) {
   const [msg, setMsg] = useState(null)
   const [busy, setBusy] = useState(false)
-  const img = imageUrl(party.image_path)
+  const img = partyImageUrl(party)
   const save = async (e) => {
     e.preventDefault()
     setMsg(null)
@@ -133,8 +133,9 @@ function ProfileTab({ party, reload }) {
   return (
     <>
       <div className="panel">
-        <h3>Φωτογραφία ομάδας</h3>
-        {img ? <p><img src={img} alt="" style={{ maxWidth: 260, borderRadius: 8 }} /></p> : <p className="note">Δεν έχει ανέβει εικόνα.</p>}
+        <h3>Λογότυπο ή φωτογραφία</h3>
+        {img ? <p><img src={img} alt={!party.image_path ? `Λογότυπο ${party.name}` : ''} style={{ maxWidth: 260, borderRadius: 8 }} /></p> : <p className="note">Δεν έχει οριστεί εικόνα.</p>}
+        {img && !party.image_path && <p className="note">Λογότυπο από δημόσιες πηγές. Μπορείτε να το αντικαταστήσετε ανεβάζοντας άλλη εικόνα.</p>}
         <input type="file" accept="image/jpeg,image/png,image/webp" onChange={upload} disabled={busy} />
         <p className="note">JPG, PNG ή WebP, έως 2 MB. Μην ανεβάζετε φωτογραφίες ατόμων χωρίς τη συγκατάθεσή τους.</p>
       </div>
@@ -378,7 +379,7 @@ function ManageParty({ partyId }) {
   const names = [...new Set([...lines(party.responsible_persons), ...lines(party.founders)])]
   const filled = names.filter((x) => people.some((p) => p.name === x)).length
   const checks = [
-    ['Φωτογραφία ομάδας', !!party.image_path], ['Σύνθημα', !!party.slogan], ['Έτος ίδρυσης', !!party.founded_year], ['Ιδρυτές', !!party.founders],
+    ['Λογότυπο ή φωτογραφία', !!partyImageUrl(party)], ['Σύνθημα', !!party.slogan], ['Έτος ίδρυσης', !!party.founded_year], ['Ιδρυτές', !!party.founders],
     ['Χρηματοδότηση', !!party.funding], ['Διακήρυξη', !!(party.manifesto || party.manifesto_url)], ['Ιστοσελίδα ή κοινωνικά δίκτυα', !!(party.website || party.facebook || party.instagram || party.x_url || party.youtube || party.tiktok || party.linkedin)],
     [`Βιογραφικά (${filled}/${names.length})`, names.length > 0 && filled === names.length], ['Τουλάχιστον ένα βίντεο', videos.length > 0],
     [`Προτάσεις (${proposals.filter((p) => p.is_published).length}/${topics.length} θέματα)`, proposals.filter((p) => p.is_published).length === topics.length],

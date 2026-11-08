@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { imageUrl } from './supabase'
+import { partyImageUrl } from './supabase'
 import { KIND } from './util'
 
 export function Loading({ state }) {
@@ -14,11 +14,11 @@ export function Loading({ state }) {
 }
 
 export function PartyCard({ party, n, pick }) {
-  const img = imageUrl(party.image_path)
+  const img = partyImageUrl(party)
   return (
     <article className={`card pcard${party.kind === 'group' ? ' group' : ''}`}>
       {img ? (
-        <div className="card-img"><img src={img} alt="" loading="lazy" /></div>
+        <div className={`card-img${!party.image_path ? ' party-logo' : ''}`}><img src={img} alt={!party.image_path ? `Λογότυπο ${party.name}` : ''} loading="lazy" /></div>
       ) : (
         <div className="card-img ph"><span>Χωρίς φωτογραφία</span></div>
       )}

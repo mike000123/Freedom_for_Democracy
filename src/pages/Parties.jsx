@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { sb, q, imageUrl } from '../supabase'
+import { sb, q, partyImageUrl } from '../supabase'
 import { useData, useTitle, shuffle, lines, fmtDateTime, KIND, TIER } from '../util'
 import { Chat } from './Chat'
 import { Loading, PartyCard } from '../components'
@@ -188,7 +188,7 @@ export function Party() {
   }))
   const opened = cards.find((c) => c.name === open)
   const show = (name) => { setOpen(name); setTimeout(() => dlg.current?.showModal(), 0) }
-  const img = imageUrl(party.image_path)
+  const img = partyImageUrl(party)
   const label = party.kind === 'group' ? 'η ομάδα' : 'το κόμμα'
   const socials = SOCIALS.filter(([k]) => party[k])
 
@@ -196,7 +196,7 @@ export function Party() {
     <div className="wrap pad">
       <p className="crumb"><Link to="/kommata">Κόμματα και ομάδες</Link> / {party.name}</p>
       <p className="eyebrow">{KIND[party.kind]}</p>
-      {img && <div className="party-img"><img src={img} alt="" /></div>}
+      {img && <div className={`party-img${!party.image_path ? ' party-logo' : ''}`}><img src={img} alt={!party.image_path ? `Λογότυπο ${party.name}` : ''} /></div>}
       <div className="head-row">
         <div className="party-heading">
           <h1>{party.name}</h1>
