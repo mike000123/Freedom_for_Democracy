@@ -616,7 +616,3 @@ main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top
 .hero-bleed::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(241,244,250,.82) 0%, rgba(241,244,250,.55) 45%, rgba(241,244,250,0) 75%); pointer-events: none; }
 .hero-bleed > .hero2 { position: relative; }
 @media (max-width: 900px) { .hero-bleed { background-size: cover; } .hero-bleed::before { background: rgba(241,244,250,.7); } }
-
-:root { --card-gray: #d6dae2; }
-.landscape-stats .stat, .landscape-charts .chart, .proposal-preview-card { background: var(--card-gray); }
-.evidence-guide-legend { background: #e6e9ef; }
