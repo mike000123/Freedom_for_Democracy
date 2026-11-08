@@ -13,7 +13,7 @@ export function Loading({ state }) {
   return state.loading ? <div className="wrap pad"><p className="note">Φόρτωση…</p></div> : null
 }
 
-export function PartyCard({ party, n }) {
+export function PartyCard({ party, n, pick }) {
   const img = imageUrl(party.image_path)
   return (
     <article className={`card pcard${party.kind === 'group' ? ' group' : ''}`}>
@@ -22,6 +22,7 @@ export function PartyCard({ party, n }) {
       ) : (
         <div className="card-img ph"><span>Χωρίς φωτογραφία</span></div>
       )}
+      {pick && <label className="pick"><input type="checkbox" checked={pick.checked} onChange={pick.onChange} /> Σύγκριση</label>}
       <p>
         {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
         {party.kind === 'group' ? <span className="pill outline">Ομάδα υπό σύσταση</span>

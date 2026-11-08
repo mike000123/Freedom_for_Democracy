@@ -5,6 +5,7 @@ import { Catalog, Party } from './pages/Parties'
 import { Topics, Topic, Proposal, CitizenProposal, Question } from './pages/Topics'
 import { Rules, Privacy, Transparency } from './pages/Static'
 import Compare from './pages/Compare'
+import CompareParties from './pages/CompareParties'
 import { Register, Login, Forgot, NewPassword, Account } from './pages/Account'
 import { useAuth } from './auth'
 import { NewCitizenProposal } from './pages/Post'
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/protasi-politi/:id" element={<CitizenProposal />} />
           <Route path="/erotima/:id" element={<Question />} />
           <Route path="/sygkrisi" element={<Compare />} />
+          <Route path="/sygkrisi-kommaton" element={<CompareParties />} />
           <Route path="/eggrafi" element={<Register />} />
           <Route path="/eisodos" element={<Login />} />
           <Route path="/xechasa-kodiko" element={<Forgot />} />

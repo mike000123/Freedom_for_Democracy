@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { sb, q, imageUrl } from '../supabase'
 import { useData, useTitle, shuffle, lines, fmtDateTime, KIND, TIER } from '../util'
 import { Chat } from './Chat'
@@ -18,6 +18,10 @@ export function Catalog() {
   const topic = params.get('topic') || ''
   const tier = params.get('tier') || ''
   const all = params.get('all') === '1'
+  const nav = useNavigate()
+  const [sel, setSel] = useState([])
+  const toggleSel = (slug) => setSel((a) => (a.includes(slug) ? a.filter((x) => x !== slug) : a.length >= 6 ? a : [...a, slug]))
+  const card = (p, d) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} pick={{ checked: sel.includes(p.slug), onChange: () => toggleSel(p.slug) }} />
   const { isAdmin } = useIsAdmin()
   const appFlag = useData(async () => (await sb.from('feature_flags').select('state').eq('key', 'applications').maybeSingle()).data?.state, [])
   const canApply = appFlag.data === 'on' || (appFlag.data === 'test' && isAdmin)
@@ -97,11 +101,23 @@ export function Catalog() {
         </form>
       </section>
 
+      <section className="wrap">
+        <div className="cmpbar">
+          <p className="note">Τσεκάρετε έως 6 κόμματα ή ομάδες και δείτε τα δίπλα-δίπλα, σε ενότητες που ανοίγουν και κλείνουν.</p>
+          <p>
+            <button type="button" disabled={sel.length < 2} onClick={() => nav(`/sygkrisi-kommaton?${new URLSearchParams(sel.map((v) => ['p', v]))}`)}>
+              Σύγκριση επιλεγμένων{sel.length > 0 && ` (${sel.length})`}
+            </button>{' '}
+            {sel.length > 0 && <button type="button" className="btn ghost" onClick={() => setSel([])}>Καθαρισμός</button>}
+          </p>
+        </div>
+      </section>
+
       {!d ? <Loading state={s} /> : filtered ? (
         <section className="wrap pad">
           <p className="note">Τα αποτελέσματα εμφανίζονται σε τυχαία σειρά. Αυτή η προβολή δεν καταγράφει εμφανίσεις.</p>
           <div className="grid">
-            {d.parties.length ? d.parties.map((p) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} />) : <p>Κανένα αποτέλεσμα.</p>}
+            {d.parties.length ? d.parties.map((p) => card(p, d)) : <p>Κανένα αποτέλεσμα.</p>}
           </div>
         </section>
       ) : (
@@ -109,7 +125,7 @@ export function Catalog() {
           <section className="wrap pad">
             <h2 className="sec">Πλήρη προφίλ <span className="meta">{d.full.length} από {d.nFull} · τυχαία σειρά</span></h2>
             <div className="grid">
-              {d.full.length ? d.full.map((p) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} />) : <p className="note">Δεν υπάρχουν ακόμη κόμματα με πλήρες προφίλ.</p>}
+              {d.full.length ? d.full.map((p) => card(p, d)) : <p className="note">Δεν υπάρχουν ακόμη κόμματα με πλήρες προφίλ.</p>}
             </div>
             {d.nFull > d.full.length && <p className="center"><button className="btn ghost" onClick={() => setParams({ all: '1' })}>Εμφάνιση περισσότερων</button></p>}
           </section>
@@ -118,7 +134,7 @@ export function Catalog() {
               <h2 className="sec">Προφίλ σε εξέλιξη <span className="meta">Ξεχωριστή εναλλαγή</span></h2>
               <p className="note">Συμπληρώνουν ακόμη τα στοιχεία τους. Έχουν το ίδιο βήμα, αλλά σε δική τους σειρά.</p>
               <div className="grid">
-                {d.progress.length ? d.progress.map((p) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} />) : <p className="note">Κανένα προφίλ σε εξέλιξη.</p>}
+                {d.progress.length ? d.progress.map((p) => card(p, d)) : <p className="note">Κανένα προφίλ σε εξέλιξη.</p>}
               </div>
             </div>
           </section>
@@ -126,7 +142,7 @@ export function Catalog() {
             <h2 className="sec">Ομάδες υπό σύσταση <span className="meta">Ξεχωριστή ενότητα · το φίλτρο «Τύπος» τις εμφανίζει μαζί με τα κόμματα</span></h2>
             <p className="note">Ιδέες που παίρνουν μορφή, με τις ίδιες απαιτήσεις ταυτότητας και διαφάνειας.</p>
             <div className="grid">
-              {d.groups.length ? d.groups.map((p) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} />) : <p className="note">Καμία ομάδα υπό σύσταση.</p>}
+              {d.groups.length ? d.groups.map((p) => card(p, d)) : <p className="note">Καμία ομάδα υπό σύσταση.</p>}
             </div>
           </section>
         </>
