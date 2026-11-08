@@ -103,7 +103,7 @@ export default function App() {
           <div className="foot-left">
             <Brand footer />
             <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
-            <p className="foot-note">Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία · Χωρίς διαφημίσεις. Καμία πληρωμή δεν επηρεάζει την έκθεση των κομμάτων.</p>
+            <p className="foot-note">Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία.</p>
           </div>
           <ul className="foot-links">
             <li><Link to="/kanones">Κανόνες και απόρρητο</Link></li>
