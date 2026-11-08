@@ -617,6 +617,6 @@ main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top
 .hero-bleed > .hero2 { position: relative; }
 @media (max-width: 900px) { .hero-bleed { background-size: cover; } .hero-bleed::before { background: rgba(241,244,250,.7); } }
 
-:root { --card-gray: #e8ecf4; }
+:root { --card-gray: #d6dae2; }
 .landscape-stats .stat, .landscape-charts .chart, .proposal-preview-card { background: var(--card-gray); }
-.evidence-guide-legend { background: #f4f6fb; }
+.evidence-guide-legend { background: #e6e9ef; }
