@@ -17,6 +17,7 @@ import { RoomsHub, RoomPage } from './pages/Rooms'
 import Admin, { useIsAdmin } from './pages/Admin'
 import { sb } from './supabase'
 import { useData } from './util'
+import { Brand } from './components'
 
 function ScrollTop() {
   const { pathname } = useLocation()
@@ -46,10 +47,7 @@ export default function App() {
       <div className="banner" aria-hidden="true">&nbsp;</div>
       <header className="site">
         <div className="wrap">
-          <Link className="brand" to="/">
-            <span className="logo">f</span>
-            <span className="brand-text"><strong>freedom</strong><small>for democracy</small></span>
-          </Link>
+          <Brand />
           <nav aria-label="Κύριο μενού">
             <NavLink to="/" end>Αρχική</NavLink>
             <NavLink to="/kommata">Κόμματα και ομάδες</NavLink>
@@ -113,8 +111,9 @@ export default function App() {
             {!session && <li><Link to="/eisodos">Είσοδος</Link></li>}
           </ul>
         </div>
-        <div className="wrap foot-small">
-          Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία · Χωρίς διαφημίσεις. Καμία πληρωμή δεν επηρεάζει την έκθεση των κομμάτων.
+        <div className="wrap foot-small foot-bottom">
+          <Brand footer />
+          <p>Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία · Χωρίς διαφημίσεις. Καμία πληρωμή δεν επηρεάζει την έκθεση των κομμάτων.</p>
         </div>
       </footer>
     </>

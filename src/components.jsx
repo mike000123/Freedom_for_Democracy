@@ -14,6 +14,20 @@ export function Loading({ state }) {
   return state.loading ? <div className="wrap pad"><p className="note">Φόρτωση…</p></div> : null
 }
 
+export function Brand({ footer = false }) {
+  return <Link className={`brand${footer ? ' footer-brand' : ''}`} to="/" aria-label="Freedom for Democracy — Αρχική">
+    <span className="logo" aria-hidden="true">f</span>
+    <span className="brand-text"><strong>freedom</strong><small>for democracy</small></span>
+  </Link>
+}
+
+export function PartyLogo({ party, className = '' }) {
+  const [failed, setFailed] = useState([])
+  const candidates = [...new Set([partyImageUrl(party), partyImageUrl({ ...party, image_path: '' })])].filter(Boolean)
+  const src = candidates.find((url) => !failed.includes(url))
+  return src ? <img className={className} src={src} alt={`Λογότυπο ${party.name}`} title={party.name} width="64" height="28" loading="lazy" decoding="async" onError={() => setFailed((urls) => [...urls, src])} /> : null
+}
+
 export function PartyCard({ party, n, pick }) {
   const img = partyImageUrl(party)
   return (

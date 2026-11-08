@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { sb, q } from '../supabase'
 import { useData, useTitle, shuffle, fmtDate, fmtDateTime, truncWords, KIND } from '../util'
-import { Loading } from '../components'
+import { Loading, PartyLogo } from '../components'
 import { useAuth } from '../auth'
 import { OfficialReply, useMembership } from './Manage'
 import { Chat } from './Chat'
@@ -60,7 +60,7 @@ export function Topic() {
     const topic = (await q(sb.from('topics').select('*').eq('slug', slug).limit(1)))[0]
     if (!topic) throw new Error('Το θέμα δεν βρέθηκε.')
     const [props, cprops, questions, parties, flags] = await Promise.all([
-      q(sb.from('proposals').select('id,title,action,party:parties!inner(id,name,slug,kind,tier,is_example,is_published)').eq('topic_id', topic.id).eq('is_published', true).eq('party.is_published', true)),
+      q(sb.from('proposals').select('id,title,action,party:parties!inner(id,name,slug,kind,tier,is_example,is_published,image_path,website)').eq('topic_id', topic.id).eq('is_published', true).eq('party.is_published', true)),
       q(sb.from('citizen_proposals').select('id,title,action,author_id').eq('topic_id', topic.id).eq('removed', false)),
       q(sb.from('questions').select('id,body,created_at,author_id').eq('topic_id', topic.id).eq('removed', false).order('created_at', { ascending: false })),
       q(sb.from('parties').select('id,name,slug').eq('is_published', true).eq('graduated', false)),
@@ -108,7 +108,8 @@ export function Topic() {
         )}
         <div className="grid">
           {props.length ? props.map((p) => (
-            <article className="card pcard" key={p.id}>
+            <article className="card pcard proposal-card" key={p.id}>
+              <PartyLogo party={p.party} className="proposal-party-logo" />
               <label className="pick"><input type="checkbox" checked={selP.includes(p.party.slug)} onChange={() => toggle(selP, setSelP, p.party.slug)} /> Σύγκριση</label>
               <p>
                 {p.party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
