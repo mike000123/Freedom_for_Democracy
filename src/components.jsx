@@ -19,9 +19,9 @@ export function PartyCard({ party, n }) {
     <article className={`card pcard${party.kind === 'group' ? ' group' : ''}`}>
       {img ? (
         <div className="card-img"><img src={img} alt="" loading="lazy" /></div>
-      ) : party.tier === 'full' && party.kind === 'party' ? (
-        <div className="card-img ph"><span>Φωτογραφία ομάδας</span></div>
-      ) : null}
+      ) : (
+        <div className="card-img ph"><span>Χωρίς φωτογραφία</span></div>
+      )}
       <p>
         {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
         {party.kind === 'group' ? <span className="pill outline">Ομάδα υπό σύσταση</span>
