@@ -101,8 +101,10 @@ export default function App() {
       <footer className="site">
         <div className="wrap foot">
           <div className="foot-left">
-            <Brand footer />
-            <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
+            <div className="foot-head">
+              <Brand footer />
+              <p className="foot-title">Κάθε φωνή,<br />μια ίση ευκαιρία</p>
+            </div>
             <p className="foot-note">Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία.</p>
           </div>
           <ul className="foot-links">

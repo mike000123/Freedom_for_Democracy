@@ -609,3 +609,5 @@ main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top
 .foot-left .footer-brand { align-self: flex-start; }
 .foot-note { margin: auto 0 0; font-size: 0.85rem; color: var(--pale); }
 @media (max-width: 700px) { .foot-note { margin-top: 0; } }
+
+.foot-head { display: flex; align-items: center; gap: 16px 28px; flex-wrap: wrap; }
