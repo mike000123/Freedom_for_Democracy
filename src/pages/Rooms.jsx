@@ -66,8 +66,8 @@ export function RoomsHub() {
         <>
           <h2>Ομάδες χρηστών</h2>
           <p className="note">Οι δημόσιες ομάδες εμφανίζονται σε τυχαία σειρά. Σε αναφορά, οι διαχειριστές βλέπουν το μήνυμα που αναφέρεται, ακόμη και σε ιδιωτική ομάδα.</p>
-          {mine.length > 0 && <><h3>Οι ομάδες μου</h3>{mine.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
-          {open.length > 0 ? open.map((r) => <RoomItem key={r.id} r={r} topics={topics} />) : !mine.length && <p className="note">Δεν υπάρχουν ομάδες ακόμη.</p>}
+          <div className="rooms-grid">
+            <div className="rooms-side">
           {session && profile ? (
             <>
               <form onSubmit={create} className="panel">
@@ -86,6 +86,12 @@ export function RoomsHub() {
               </form>
             </>
           ) : <p className="panel">Για ομάδες χρειάζεστε λογαριασμό. <Link className="btn" to="/eisodos">Είσοδος</Link></p>}
+            </div>
+            <div className="rooms-main">
+          {mine.length > 0 && <><h3>Οι ομάδες μου</h3>{mine.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
+          {open.length > 0 ? open.map((r) => <RoomItem key={r.id} r={r} topics={topics} />) : !mine.length && <p className="note">Δεν υπάρχουν ομάδες ακόμη.</p>}
+            </div>
+          </div>
           {err && <p className="errorlist">{err}</p>}
         </>
       )}

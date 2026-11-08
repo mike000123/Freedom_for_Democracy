@@ -356,3 +356,7 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .acct-side { display: grid; gap: 20px; }
 .acct-grid .panel { margin: 0; max-width: none; }
 @media (max-width: 800px) { .acct-grid { grid-template-columns: 1fr; } }
+
+.rooms-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px; align-items: start; }
+.rooms-side .panel { margin-top: 0; }
+@media (max-width: 800px) { .rooms-grid { grid-template-columns: 1fr; } }
