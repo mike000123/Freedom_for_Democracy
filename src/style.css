@@ -141,24 +141,18 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .coverage-panel { border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
 .coverage-panel > .eyebrow { margin-top: 0; }
 .coverage-panel h2 { margin-bottom: 12px; }
-.coverage-filters { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin: 20px 0 12px; }
-.coverage-filters > .link { padding: 9px 0; }
-.coverage-filter { position: relative; }
-.coverage-filter > summary { cursor: pointer; list-style: none; min-height: 44px; padding: 10px 14px; border: 1px solid var(--navy); border-radius: 6px; color: var(--navy); font-size: 0.9rem; background: #fff; }
-.coverage-filter > summary::-webkit-details-marker { display: none; }
-.coverage-filter > summary::after { content: ' ▾'; margin-left: 10px; }
-.coverage-filter[open] > summary::after { content: ' ▴'; }
-.coverage-filter > summary span { color: var(--muted); }
-.coverage-options { position: absolute; z-index: 5; left: 0; top: calc(100% + 6px); width: 300px; max-width: calc(100vw - 70px); padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: 0 8px 24px #16213a20; }
-.coverage-options fieldset { border: 0; margin: 0; padding: 0; max-height: 270px; overflow-y: auto; }
-.coverage-options label { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; font-size: 0.9rem; font-weight: 400; padding: 10px 2px; margin: 0; }
-.coverage-options input { flex: none; margin-top: 5px; }
-.coverage-option-actions { display: flex; gap: 18px; margin-top: 8px; }
-.coverage-options p.note { margin: 10px 0 4px; font-size: 0.8rem; }
-.coverage-count { margin: 10px 0; font-size: 0.85rem; }
-.coverage-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
-.coverage-scroll:focus-visible, .coverage-filter summary:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
-.coverage-scroll-hint { display: none; }
+.coverage-rotation-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 20px 0 12px; }
+.coverage-rotation-bar .note { margin: 0; font-size: 0.85rem; }
+.coverage-rotation-bar .btn { min-height: 44px; font-size: 0.85rem; }
+.coverage-scroll { overflow: auto; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
+.coverage-scroll:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.coverage-scroll-hint { font-size: 0.8rem; }
+.coverage-rotating { --coverage-row-height: 80px; --coverage-party-width: 220px; --coverage-topic-width: 130px; height: calc(var(--coverage-header-height, 60px) + var(--coverage-measured-row-height, var(--coverage-row-height)) * var(--coverage-visible-rows) + var(--coverage-scrollbar-height, 0px) + 2px); overflow-anchor: none; }
+.coverage-rotating .coverage-table { table-layout: fixed; width: max(100%, calc(var(--coverage-party-width) + var(--coverage-topic-count) * var(--coverage-topic-width))); }
+.coverage-name-col { width: var(--coverage-party-width); }
+.coverage-rotating tbody tr { height: var(--coverage-row-height); }
+.coverage-rotating thead th { position: sticky; top: 0; z-index: 2; }
+.coverage-rotating .coverage-table thead th:first-child { z-index: 3; }
 .coverage-table { border-spacing: 0; border-collapse: separate; width: 100%; }
 .coverage-table th, .coverage-table td { border-right: 1px solid var(--line); text-align: center; vertical-align: middle; padding: 10px 12px; }
 .coverage-table thead th { background: #e6edf7; min-width: 110px; font-size: 0.85rem; }
@@ -171,9 +165,10 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .coverage-table th:last-child, .coverage-table td:last-child { border-right: 0; }
 .coverage-party { display: flex; align-items: center; gap: 10px; color: var(--navy); text-decoration: none; font-size: 0.88rem; font-weight: 600; }
 .coverage-party:hover { text-decoration: underline; }
-.coverage-party > span:last-child { overflow-wrap: anywhere; }
+.coverage-party > span:last-child { overflow-wrap: anywhere; min-width: 0; }
+.coverage-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.35; }
 .coverage-party img { width: 34px; height: 34px; object-fit: contain; flex: none; }
-.coverage-party small { display: block; color: var(--muted); font-weight: 400; margin-top: 3px; }
+.coverage-party small { display: block; color: var(--muted); font-weight: 400; font-size: 0.7rem; line-height: 1.2; margin-top: 3px; }
 .coverage-initial { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 50%; width: 30px; height: 30px; flex: none; }
 .coverage-check { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; background: var(--navy); font-size: 16px; font-weight: 700; text-decoration: none; }
 .coverage-proposal { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 6px; text-decoration: none; outline-offset: 2px; }
@@ -184,7 +179,6 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .coverage-legend li { display: flex; align-items: center; gap: 8px; }
 .coverage-legend .coverage-check { width: 22px; height: 22px; font-size: 13px; }
 .coverage-bottom .note { margin: 8px 0 0; font-size: 0.85rem; }
-.coverage-compare { font-size: 0.9rem; font-weight: 600; }
 .coverage-empty { border: 1px dashed var(--line); border-radius: 8px; padding: 24px; color: var(--muted); }
 .proposal-preview { padding-bottom: 40px; }
 .proposal-preview > .note { margin-bottom: 24px; }
@@ -224,8 +218,7 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
   .topic-count { grid-column: 2; grid-row: 1; }
   .landscape-section { padding-top: 28px; }
   .coverage-panel { padding: 18px 12px; }
-  .coverage-filters { flex-direction: column; align-items: stretch; }
-  .coverage-options { width: 100%; max-width: 100%; }
+  .coverage-rotating { --coverage-row-height: 88px; --coverage-party-width: 150px; }
   .coverage-table th:first-child { min-width: 150px; max-width: 170px; }
   .coverage-party { gap: 6px; font-size: 0.8rem; }
   .coverage-party img { width: 26px; height: 26px; }
