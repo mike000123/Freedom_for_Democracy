@@ -333,7 +333,7 @@ h2.sec .meta { font-family: system-ui, sans-serif; font-size: 0.85rem; font-weig
 .center { text-align: center; }
 .pcard { display: flex; flex-direction: column; min-height: 190px; }
 .proposal-card { position: relative; }
-.proposal-party-logo { position: absolute; top: 18px; right: 20px; width: 64px; height: 28px; object-fit: contain; background: #fff; }
+.proposal-party-logo { position: absolute; top: 6px; right: 20px; width: 128px; height: 56px; object-fit: contain; background: #fff; }
 .pcard h3 { font-size: 1.35rem; }
 .pcard .slogan { flex: 1; }
 .card-foot { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 10px; margin: 8px 0 0; font-size: 0.85rem; color: var(--muted); }

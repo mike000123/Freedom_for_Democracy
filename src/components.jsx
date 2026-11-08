@@ -25,7 +25,7 @@ export function PartyLogo({ party, className = '' }) {
   const [failed, setFailed] = useState([])
   const candidates = [...new Set([partyImageUrl(party), partyImageUrl({ ...party, image_path: '' })])].filter(Boolean)
   const src = candidates.find((url) => !failed.includes(url))
-  return src ? <img className={className} src={src} alt={`Λογότυπο ${party.name}`} title={party.name} width="64" height="28" loading="lazy" decoding="async" onError={() => setFailed((urls) => [...urls, src])} /> : null
+  return src ? <img className={className} src={src} alt={`Λογότυπο ${party.name}`} title={party.name} width="128" height="56" loading="lazy" decoding="async" onError={() => setFailed((urls) => [...urls, src])} /> : null
 }
 
 export function PartyCard({ party, n, pick }) {
