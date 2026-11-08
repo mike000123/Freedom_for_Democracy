@@ -3,7 +3,7 @@ import { sb, q } from '../supabase'
 import { useData, useTitle, shuffle, lines, KIND, TIER } from '../util'
 import { Loading } from '../components'
 
-const MAX = 6
+const MAX = 9
 const NA = <span className="note">Ν/Α</span>
 const text = (v) => (v && String(v).trim() ? <span style={{ whiteSpace: 'pre-line' }}>{v}</span> : NA)
 const link = (v) => (v ? <a href={v} target="_blank" rel="noreferrer noopener">{v}</a> : NA)

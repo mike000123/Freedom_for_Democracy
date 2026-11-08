@@ -20,7 +20,7 @@ export function Catalog() {
   const all = params.get('all') === '1'
   const nav = useNavigate()
   const [sel, setSel] = useState([])
-  const toggleSel = (slug) => setSel((a) => (a.includes(slug) ? a.filter((x) => x !== slug) : a.length >= 6 ? a : [...a, slug]))
+  const toggleSel = (slug) => setSel((a) => (a.includes(slug) ? a.filter((x) => x !== slug) : a.length >= 9 ? a : [...a, slug]))
   const card = (p, d) => <PartyCard key={p.id} party={p} n={d.counts[p.id]} pick={{ checked: sel.includes(p.slug), onChange: () => toggleSel(p.slug) }} />
   const { isAdmin } = useIsAdmin()
   const appFlag = useData(async () => (await sb.from('feature_flags').select('state').eq('key', 'applications').maybeSingle()).data?.state, [])
@@ -103,7 +103,7 @@ export function Catalog() {
 
       <section className="wrap">
         <div className="cmpbar">
-          <p className="note">Τσεκάρετε έως 6 κόμματα ή ομάδες και δείτε τα δίπλα-δίπλα, σε ενότητες που ανοίγουν και κλείνουν.</p>
+          <p className="note">Τσεκάρετε έως 9 κόμματα ή ομάδες και δείτε τα δίπλα-δίπλα, σε ενότητες που ανοίγουν και κλείνουν.</p>
           <p>
             <button type="button" disabled={sel.length < 2} onClick={() => nav(`/sygkrisi-kommaton?${new URLSearchParams(sel.map((v) => ['p', v]))}`)}>
               Σύγκριση επιλεγμένων{sel.length > 0 && ` (${sel.length})`}
