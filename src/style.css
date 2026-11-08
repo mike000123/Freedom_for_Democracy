@@ -198,7 +198,7 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .evidence-mark.partial { border-color: var(--navy); background: linear-gradient(90deg, var(--navy) 50%, transparent 50%); }
 .evidence-explainer { font-size: 0.8rem; margin: 12px 0 24px; }
 .evidence-example-note { font-size: 0.85rem; }
-.evidence-guide-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.proposal-evidence.evidence-guide-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .evidence-guide-grid li > div { min-width: 0; overflow-wrap: anywhere; }
 .evidence-question { margin: 10px 0 0; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
 .evidence-legend-title { margin: 24px 0 12px; font-size: 1rem; }
@@ -206,8 +206,8 @@ details.diff summary { cursor: pointer; color: var(--muted); font-size: 0.85rem;
 .evidence-guide-legend li { display: flex; gap: 10px; align-items: flex-start; }
 .evidence-guide-legend strong { font-size: 0.9rem; }
 .evidence-guide-legend p { margin: 6px 0 0; color: var(--muted); font-size: 0.85rem; }
-@media (max-width: 1100px) {
-  .evidence-guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 700px) {
+  .proposal-evidence.evidence-guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {
   .evidence-guide-legend { grid-template-columns: 1fr; }
@@ -506,3 +506,71 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .car-btn.prev { left: -14px; } .car-btn.next { right: -14px; }
 @media (max-width: 1000px) { .car-track { grid-auto-columns: calc((100% - 16px) / 2); } }
 @media (max-width: 560px) { .car-track { grid-auto-columns: 85%; } .car-btn.prev { left: -6px; } .car-btn.next { right: -6px; } }
+
+/* Πιο σύντομη αρχική, με ευανάγνωστο κείμενο και ίδιες ενότητες. */
+.home-page .hero2 { gap: 28px; padding-top: 32px; padding-bottom: 20px; }
+.home-page .display { font-size: clamp(2rem, 3.8vw, 3rem); margin-bottom: 14px; }
+.home-page .hero2 .btn.big { padding: 10px 16px; min-height: 44px; }
+.home-page .glance { padding: 20px 24px; }
+.home-page .glance li { padding: 12px 0; gap: 14px; }
+.home-page .glance .num { font-size: 1.7rem; min-width: 34px; }
+.home-page .glance .eyebrow-s { margin-bottom: 10px; }
+.home-page .mission { padding-bottom: 24px; }
+.home-page .mission::before { margin-bottom: 12px; }
+.home-page .mission-lead { font-size: 1.5rem; margin-bottom: 10px; }
+.home-page .mission-cols p { font-size: 1rem; line-height: 1.5; }
+.home-page .landscape-band { padding: 28px 0; }
+.home-page .section-title { font-size: clamp(1.5rem, 2.6vw, 1.85rem); margin-bottom: 10px; }
+.home-page .landscape-stats { gap: 12px; margin: 18px 0; }
+.home-page .landscape-stats .stat { padding: 14px 16px; }
+.home-page .landscape-stats .stat strong { font-size: 2.2rem; margin-bottom: 5px; }
+.home-page .landscape-scope { margin: 0 0 16px; }
+.home-page .landscape-charts { gap: 16px; }
+.home-page .landscape-charts .chart { padding: 18px; }
+.home-page .landscape-charts .chart h3 { font-size: 1.25rem; margin-bottom: 8px; }
+.home-page .topic-bars { margin: 14px 0; }
+.home-page .topic-bars li { margin: 10px 0; gap: 6px 10px; }
+.home-page .profile-distribution { margin: 12px 0; gap: 12px; }
+.home-page .profile-distribution svg { width: 150px; height: 150px; }
+.home-page .profile-chart .chart-foot { margin: 12px 0 0; padding-top: 10px; }
+.home-page .landscape-section { padding-top: 24px; padding-bottom: 8px; }
+.home-page .coverage-panel { padding: 20px; }
+.home-page .coverage-rotation-bar { margin: 12px 0 8px; }
+.home-page .coverage-rotating { --coverage-row-height: 68px; }
+.home-page .coverage-table th, .home-page .coverage-table td { padding: 6px 10px; }
+.home-page .coverage-party small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-page .coverage-bottom { gap: 8px 20px; margin-top: 12px; }
+.home-page .proposal-preview { padding-bottom: 24px; }
+.home-page .proposal-preview > .note { margin-bottom: 16px; }
+.home-page .proposal-preview-card { padding: 20px; }
+.home-page .proposal-preview-meta { margin-bottom: 8px; }
+.home-page .proposal-preview-card h3 { font-size: 1.45rem; margin: 8px 0; }
+.home-page .proposal-preview-excerpt { margin: 8px 0; line-height: 1.5; }
+.home-page .evidence-example-note { margin: 8px 0; }
+.home-page .proposal-evidence { margin: 16px 0 10px; }
+.home-page .proposal-evidence li { padding: 12px; gap: 8px; }
+.home-page .evidence-question { margin-top: 6px; }
+.home-page .evidence-legend-title { margin: 16px 0 10px; }
+.home-page .evidence-guide-legend { gap: 12px; margin-bottom: 14px; padding: 12px; }
+.home-page .evidence-explainer { margin: 10px 0 16px; }
+.home-page .proposal-preview-bottom .btn { min-height: 44px; padding: 10px 14px; }
+.home-page .landscape-motto { font-size: 1.1rem; padding: 12px; margin: 16px 0 0; }
+main:has(> .home-page) + footer.site { padding: 28px 0 16px; margin-top: 16px; }
+main:has(> .home-page) + footer.site .foot-small { margin-top: 16px; padding-top: 12px; }
+@media (max-width: 700px) {
+  .home-page .wrap { padding-left: 16px; padding-right: 16px; }
+  .home-page .hero2 { gap: 20px; padding-top: 24px; padding-bottom: 16px; }
+  .home-page .glance { padding: 16px 18px; }
+  .home-page .landscape-stats .stat { padding: 12px 10px; }
+  .home-page .landscape-charts .chart { padding: 16px 14px; }
+  .home-page .coverage-panel { padding: 14px 12px; }
+  .home-page .coverage-rotating { --coverage-row-height: 72px; }
+  .home-page .proposal-preview-card { padding: 16px 14px; }
+  .home-page .evidence-guide-grid li { display: block; padding: 10px; }
+  .home-page .evidence-guide-grid .evidence-mark { float: left; width: 18px; height: 18px; margin: 1px 6px 0 0; font-size: 11px; }
+  .home-page .evidence-guide-grid strong { font-size: 0.82rem; line-height: 1.45; }
+  .home-page .evidence-guide-grid li div > span { font-size: 0.8rem; }
+}
+@media (max-width: 359px) {
+  .home-page .evidence-guide-grid { grid-template-columns: 1fr; }
+}

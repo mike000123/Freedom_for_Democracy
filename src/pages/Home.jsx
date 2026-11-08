@@ -22,7 +22,7 @@ export default function Home() {
   }, [])
 
   return (
-    <>
+    <div className="home-page">
       <section className="wrap hero2">
         <div>
           <p className="eyebrow">Ανεξάρτητος χώρος πολιτικού διαλόγου</p>
@@ -51,6 +51,6 @@ export default function Home() {
       </section>
 
       {s.data ? <HomeLandscape data={s.data} /> : <Loading state={s} />}
-    </>
+    </div>
   )
 }
