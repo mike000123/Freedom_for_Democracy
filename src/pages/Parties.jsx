@@ -46,7 +46,7 @@ export function Catalog() {
         const needle = qtext.toLowerCase()
         parties = parties.filter((p) => `${p.name} ${p.slogan}`.toLowerCase().includes(needle))
       }
-      return { topics, counts, parties: shuffle(parties) }
+      return { filtered: true, topics, counts, parties: shuffle(parties) }
     }
     // Ισότιμη εναλλαγή: η επιλογή γίνεται στη βάση (συνάρτηση pick_parties) και καταγράφει εμφανίσεις.
     const [full, progress, groups, all_] = await Promise.all([
@@ -55,7 +55,7 @@ export function Catalog() {
       q(sb.rpc('pick_parties', { p_kind: 'group', p_tier: null, p_n: 60, p_record: true })),
       q(sb.from('parties').select('id').eq('is_published', true).eq('graduated', false).eq('kind', 'party').eq('tier', 'full')),
     ])
-    return { topics, counts, full, progress, groups, nFull: all_.length }
+    return { filtered: false, topics, counts, full, progress, groups, nFull: all_.length }
   }, [params.toString(), nonce])
 
   const onSubmit = (e) => {
@@ -113,7 +113,7 @@ export function Catalog() {
         </div>
       </section>
 
-      {!d ? <Loading state={s} /> : filtered ? (
+      {!d ? <Loading state={s} /> : d.filtered !== filtered ? <Loading state={{ loading: true }} /> : d.filtered ? (
         <section className="wrap pad">
           <p className="note">Τα αποτελέσματα εμφανίζονται σε τυχαία σειρά. Αυτή η προβολή δεν καταγράφει εμφανίσεις.</p>
           <div className="grid">
