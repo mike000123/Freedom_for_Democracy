@@ -133,10 +133,11 @@ export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost 
       {!canPost ? <p className="panel note">{noPostText}</p> : !session ? <p className="panel">Για να γράψετε χρειάζεστε λογαριασμό. <Link className="btn" to="/eisodos">Είσοδος</Link> <Link className="btn ghost" to="/eggrafi">Δημιουργία λογαριασμού</Link></p>
         : !profile ? <p className="note">Δεν βρέθηκε προφίλ πολίτη για τον λογαριασμό σας.</p> : (
         <form onSubmit={send} className="panel">
-          <div className="form-row"><label htmlFor={'cb' + key}>Μήνυμα (έως 500 χαρακτήρες)</label><input id={'cb' + key} name="body" maxLength={500} autoComplete="off" required /></div>
+          <div className="form-row"><label htmlFor={'cb' + key}>Μήνυμα (έως 500 χαρακτήρες)</label><textarea id={'cb' + key} name="body" maxLength={500} rows={4} autoComplete="off" required style={{ resize: 'vertical' }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form.requestSubmit() } }} /></div>
           {err && <p className="errorlist">{err}</p>}
           <button type="submit" disabled={busy}>Αποστολή</button>
-          <p className="note">Γράφετε ως <strong>{profile.display_name}</strong>.</p>
+          <p className="note">Γράφετε ως <strong>{profile.display_name}</strong>. Enter για αποστολή, Shift+Enter για νέα γραμμή.</p>
         </form>
       )}
     </section>
