@@ -1,104 +1,30 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { sb, q } from '../supabase'
 import { useAuth } from '../auth'
 import { useData, useTitle } from '../util'
 import { Loading } from '../components'
 import { Chat } from './Chat'
+import RoomsDirectory from '../components/RoomsDirectory'
 
 const msgOf = (e) => (/row-level security/i.test(e?.message || '') ? 'Η ενέργεια δεν επιτρέπεται.' : e?.message || '')
 
-function RoomItem({ r, topics }) {
-  return (
-    <div className="panel">
-      <h3><Link to={`/sizitisi/${r.id}`}>{r.name}</Link>{' '}
-        {r.kind === 'official' ? <span className="pill pill-teal">Επίσημο</span> : <span className="pill outline">{r.visibility === 'private' ? 'Ιδιωτική ομάδα' : 'Δημόσια ομάδα'}</span>}
-        {r.is_member && r.kind === 'group' && <span className="pill pill-soft">Μέλος</span>}
-        {r.topic_id && topics[r.topic_id] && <> <span className="pill">{topics[r.topic_id]}</span></>}</h3>
-      {r.description && <p>{r.description}</p>}
-      {r.kind === 'group' && <p className="note">{r.members} μέλη</p>}
-    </div>
-  )
-}
-
 export function RoomsHub() {
   useTitle('Συζήτηση')
-  const { session, profile } = useAuth()
-  const nav = useNavigate()
-  const [n, setN] = useState(0)
-  const [err, setErr] = useState('')
-  const [busy, setBusy] = useState(false)
+  const { session, profile, loading } = useAuth()
+  const viewerId = session?.user.id || ''
   const s = useData(async () => {
-    const [rooms, topics, on] = await Promise.all([
-      sb.rpc('list_rooms').then((r) => { if (r.error) throw new Error(r.error.message); return r.data }),
+    const [rooms, topics, groupsOn] = await Promise.all([
+      q(sb.rpc('list_rooms')),
       q(sb.from('topics').select('id,name')),
-      sb.rpc('feature_on', { k: 'chat_groups' }).then((r) => r.data === true),
+      q(sb.rpc('feature_on', { k: 'chat_groups' })),
     ])
-    return { rooms, topics: Object.fromEntries(topics.map((t) => [t.id, t.name])), groupsOn: on }
-  }, [n, session?.user.id])
+    return { rooms: rooms || [], topics: Object.fromEntries(topics.map((t) => [t.id, t.name])), groupsOn: groupsOn === true, viewerId }
+  }, [viewerId])
+  // Do not reuse a previous account's directory while auth changes are loading.
+  if (loading || (s.data && s.data.viewerId !== viewerId)) return <Loading state={{ loading: true }} />
   if (!s.data) return <Loading state={s} />
-  const { rooms, topics, groupsOn } = s.data
-  const official = rooms.filter((r) => r.kind === 'official')
-  const mine = rooms.filter((r) => r.kind === 'group' && r.is_member)
-  const open = rooms.filter((r) => r.kind === 'group' && !r.is_member)
-  const create = async (e) => {
-    e.preventDefault(); setErr('')
-    const f = new FormData(e.target)
-    setBusy(true)
-    const { data, error } = await sb.rpc('create_room', { p_name: f.get('name'), p_desc: f.get('desc'), p_visibility: f.get('visibility') })
-    setBusy(false)
-    if (error) return setErr(msgOf(error))
-    nav(`/sizitisi/${data}`)
-  }
-  const byCode = async (e) => {
-    e.preventDefault(); setErr('')
-    const { data, error } = await sb.rpc('join_by_code', { p_code: new FormData(e.target).get('code') })
-    if (error) return setErr(msgOf(error))
-    nav(`/sizitisi/${data}`)
-  }
-  return (
-    <div className="wrap pad">
-      <h1>Συζήτηση</h1>
-      <p className="lead">Συζητήστε σε πραγματικό χρόνο, με πολίτες που έχουν επαληθευμένο email.</p>
-      <div className="rooms-grid">
-        {groupsOn && (
-          <aside className="rooms-side">
-            {session && profile ? (
-              <>
-                <form onSubmit={create} className="panel">
-                  <h3>Δημιουργία ομάδας</h3>
-                  <div className="form-row"><label>Όνομα (3 έως 60 χαρακτήρες)</label><input name="name" maxLength={60} required /></div>
-                  <div className="form-row"><label>Περιγραφή (προαιρετικά, έως 200)</label><textarea name="desc" maxLength={200} rows={5} style={{ resize: "vertical" }} /></div>
-                  <div className="form-row"><label>Ορατότητα</label>
-                    <select name="visibility"><option value="public">Δημόσια (όλοι μπορούν να μπουν)</option><option value="private">Ιδιωτική (μόνο με κωδικό πρόσκλησης)</option></select></div>
-                  <button type="submit" disabled={busy}>Δημιουργία</button>
-                  <p className="note">Έως 3 ομάδες ανά λογαριασμός. Ο δημιουργός αφαιρεί μηνύματα και μέλη.</p>
-                </form>
-                <form onSubmit={byCode} className="panel">
-                  <h3>Είσοδος με κωδικό πρόσκλησης</h3>
-                  <div className="form-row"><input name="code" required placeholder="κωδικός" /></div>
-                  <button type="submit">Είσοδος</button>
-                </form>
-              </>
-            ) : <p className="panel">Για ομάδες χρειάζεστε λογαριασμό. <Link className="btn" to="/eisodos">Είσοδος</Link></p>}
-            {err && <p className="errorlist">{err}</p>}
-          </aside>
-        )}
-        <div className="rooms-main">
-          <div className="panel"><h3><Link to="/sizitisi/geniko">Γενικό δωμάτιο</Link></h3><p className="note">Ανοιχτό σε όλους, για κάθε θέμα.</p></div>
-          {official.length > 0 && <><h2>Δωμάτια ανά θέμα</h2>{official.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
-          {groupsOn && (
-            <>
-              <h2>Ομάδες χρηστών</h2>
-              <p className="note">Οι δημόσιες ομάδες εμφανίζονται σε τυχαία σειρά. Για συμμετοχή σε ιδιωτικές ομάδες χρειάζεστε λογαριασμό και κωδικό πρόσκλησης.</p>
-              {mine.length > 0 && <><h3>Οι ομάδες μου</h3>{mine.map((r) => <RoomItem key={r.id} r={r} topics={topics} />)}</>}
-              {open.length > 0 ? open.map((r) => <RoomItem key={r.id} r={r} topics={topics} />) : !mine.length && <p className="note">Δεν υπάρχουν ομάδες ακόμη.</p>}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  )
+  return <RoomsDirectory key={`${viewerId}:${s.data.groupsOn}`} {...s.data} session={session} profile={profile} />
 }
 
 export function RoomPage() {

@@ -520,10 +520,114 @@ details.mod form { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
 .acct-grid .panel { margin: 0; max-width: none; }
 @media (max-width: 800px) { .acct-grid { grid-template-columns: 1fr; } }
 
-.rooms-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px; align-items: start; }
-.rooms-side .panel { margin-top: 0; }
-.rooms-grid:not(:has(.rooms-side)) { grid-template-columns: 1fr; }
-@media (max-width: 800px) { .rooms-grid { grid-template-columns: 1fr; } }
+/* Συζητήσεις: θεματική εξερεύνηση, προσωπικές ομάδες και προσκλήσεις. */
+.discussion-icon { width: 24px; height: 24px; flex: none; vertical-align: middle; }
+.rooms-heading { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 16px 24px; margin-bottom: 24px; }
+.rooms-heading > div:first-child { flex: 1 1 560px; }
+.rooms-heading .eyebrow { margin: 0 0 10px; }
+.rooms-heading h1 { margin: 0 0 10px; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+.rooms-subtitle { margin: 0; color: var(--muted); }
+.rooms-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.rooms-actions .btn, .rooms-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; font-size: 0.85rem; }
+.rooms-actions .discussion-icon { width: 18px; height: 18px; }
+.rooms-hub button:disabled { opacity: 0.45; cursor: not-allowed; }
+.rooms-tabs { display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+.rooms-tabs [role=tab] { flex: none; padding: 12px 18px; min-height: 46px; border-radius: 6px 6px 0 0; border-bottom: 3px solid transparent; background: none; color: var(--muted); }
+.rooms-tabs [role=tab][aria-selected=true] { border-bottom-color: var(--red); color: var(--red); background: var(--tint); font-weight: 600; }
+.rooms-tabs [role=tab]:hover { background: var(--tint); color: var(--red); }
+.rooms-hub button:focus-visible, .rooms-hub a:focus-visible, .rooms-hub input:focus-visible, .rooms-hub select:focus-visible, .room-create-dialog :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.rooms-general { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 22px; margin-bottom: 24px; background: var(--tint); border: 1px solid var(--line); border-radius: 8px; }
+.rooms-general > .discussion-icon { width: 32px; height: 32px; }
+.rooms-general h2 { font-size: 1.25rem; margin: 0 0 4px; }
+.rooms-general h2 a { color: var(--navy); text-decoration: none; }
+.rooms-general h2 a:hover { text-decoration: underline; }
+.rooms-general p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.rooms-general .btn { min-height: 44px; white-space: nowrap; }
+.rooms-categories h2, .rooms-results-heading h2 { font-size: 1.65rem; margin: 0 0 14px; }
+.rooms-category-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+.room-category { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; padding: 10px 8px; min-height: 94px; color: var(--navy); background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; }
+.room-category > .discussion-icon { width: 28px; height: 28px; margin-bottom: 3px; }
+.room-category > span { font-weight: 600; }
+.room-category small { color: var(--muted); font-size: 0.74rem; }
+.room-category:hover { background: var(--tint); color: var(--navy); }
+.room-category[aria-pressed=true] { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); background: var(--tint); }
+.rooms-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) 260px auto; align-items: center; gap: 14px; margin-bottom: 22px; }
+.rooms-search { position: relative; min-width: 0; }
+.rooms-search > .discussion-icon { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
+.rooms-search input { width: 100%; min-height: 44px; padding: 9px 12px 9px 40px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--navy); background: #fff; }
+.rooms-type { min-width: 0; }
+.rooms-type select { min-height: 44px; }
+.rooms-order { white-space: nowrap; font-size: 0.8rem; margin: 0; border-left: 1px solid var(--line); padding-left: 14px; }
+.rooms-results { scroll-margin-top: 16px; }
+.rooms-results-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.rooms-results-heading h2 { margin: 0; }
+.rooms-results-heading .note { flex: none; margin: 0; font-size: 0.85rem; }
+.discussion-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.discussion-card { display: flex; flex-direction: column; min-width: 0; min-height: 240px; padding: 16px 18px 0; border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
+.discussion-card-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; min-height: 24px; }
+.discussion-topic { display: inline-flex; align-items: center; gap: 5px; color: var(--red); font-size: 0.78rem; font-weight: 600; }
+.discussion-topic .discussion-icon { width: 18px; height: 18px; }
+.discussion-member { font-size: 0.7rem; border-radius: 4px; padding: 2px 6px; background: var(--tint); color: var(--navy); }
+.discussion-card h3 { font-size: 1.2rem; line-height: 1.3; margin: 8px 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.discussion-card h3 a { color: var(--navy); text-decoration: none; }
+.discussion-card h3 a:hover { color: var(--red); text-decoration: underline; }
+.discussion-description { margin: 0 0 10px; color: var(--muted); font-size: 0.87rem; line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.discussion-visibility { align-self: flex-start; padding: 2px 8px; margin-bottom: 12px; border-radius: 999px; background: var(--tint); color: var(--navy); font-size: 0.72rem; }
+.discussion-card-footer { display: flex; align-items: center; gap: 7px; padding: 10px 18px; margin: auto -18px 0; background: var(--tint); border-top: 1px solid var(--line); font-size: 0.8rem; }
+.discussion-card-footer .discussion-icon { width: 17px; height: 17px; }
+.rooms-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 22px 0 16px; }
+.rooms-pagination button { min-width: 40px; min-height: 42px; padding: 8px 12px; font-size: 0.9rem; }
+.rooms-directory-note { text-align: center; font-size: 0.8rem; margin: 18px 0 0; }
+.rooms-empty { text-align: center; background: var(--tint); border: 1px dashed var(--line); border-radius: 8px; padding: 28px 18px; }
+.rooms-empty > .discussion-icon { width: 36px; height: 36px; }
+.rooms-empty h3 { margin: 10px 0; }
+.rooms-empty p { color: var(--muted); }
+.room-create-dialog { width: calc(100% - 32px); max-width: 540px; max-height: calc(100dvh - 32px); margin: auto; padding: 26px; border: 1px solid var(--line); border-radius: 10px; color: var(--navy); background: #fff; }
+.room-create-dialog::backdrop { background: rgba(22, 33, 58, 0.5); }
+.room-create-dialog > .eyebrow { margin: 0 30px 8px 0; font-size: 0.75rem; }
+.room-create-dialog h2 { margin: 0 0 20px; font-size: 1.65rem; }
+.room-create-dialog textarea { resize: vertical; }
+.room-create-dialog .note { font-size: 0.82rem; }
+.room-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.room-invitations { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--tint); }
+.room-invite-copy > .discussion-icon { width: 36px; height: 36px; }
+.room-invite-copy h2 { font-size: 1.6rem; margin: 12px 0; }
+.room-invite-copy p { color: var(--muted); }
+.room-invite-form { align-self: start; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+.room-invite-form h3 { margin: 0 0 18px; font-size: 1.3rem; }
+@media (max-width: 900px) {
+  .discussion-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rooms-toolbar { grid-template-columns: minmax(0, 1fr) 230px; }
+  .rooms-order { display: none; }
+}
+@media (max-width: 600px) {
+  .rooms-hub { padding-top: 24px; padding-bottom: 28px; }
+  .rooms-heading { margin-bottom: 18px; }
+  .rooms-actions { gap: 8px; }
+  .rooms-actions button, .rooms-actions .btn { font-size: 0.8rem; padding: 9px 10px; }
+  .rooms-tabs { gap: 0; margin-bottom: 16px; }
+  .rooms-tabs [role=tab] { padding: 10px 12px; font-size: 0.85rem; }
+  .rooms-general { grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; padding: 14px 12px; margin-bottom: 20px; }
+  .rooms-general > .discussion-icon { width: 26px; height: 26px; }
+  .rooms-general h2 { font-size: 1.1rem; }
+  .rooms-general p { font-size: 0.8rem; }
+  .rooms-general .btn { padding: 9px 10px; font-size: 0.8rem; }
+  .rooms-categories h2, .rooms-results-heading h2 { font-size: 1.4rem; }
+  .rooms-category-grid { gap: 7px; margin-bottom: 18px; }
+  .room-category { padding: 8px 4px; font-size: 0.75rem; min-height: 90px; }
+  .room-category > .discussion-icon { width: 24px; height: 24px; }
+  .category-count-label { display: none; }
+  .rooms-toolbar { grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+  .discussion-card-grid { grid-template-columns: 1fr; gap: 12px; }
+  .discussion-card { min-height: 210px; padding: 14px 16px 0; }
+  .discussion-card-footer { margin-left: -16px; margin-right: -16px; padding: 10px 16px; }
+  .rooms-pagination { gap: 5px; }
+  .rooms-pagination button { min-width: 36px; padding: 8px 10px; }
+  .rooms-pagination .page-word { display: none; }
+  .room-invitations { grid-template-columns: 1fr; gap: 16px; padding: 18px 14px; }
+  .room-invite-form { padding: 16px; }
+  .room-create-dialog { padding: 22px 18px; }
+}
 
 .carousel { position: relative; margin: 16px 0 32px; }
 .car-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 48px) / 4); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px; }
