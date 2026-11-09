@@ -303,7 +303,6 @@ header.site nav a.btn-outline:hover { background: var(--tint); color: var(--navy
 .footer-brand:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
 @media (max-width: 700px) {
   .foot-bottom > p { flex-basis: 100%; }
-  .footer-brand { order: 1; }
 }
 .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); font-weight: 700; font-size: 0.85rem; margin: 0 0 12px; }
 .eyebrow-s { text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; font-size: 0.78rem; margin: 0 0 14px; }
