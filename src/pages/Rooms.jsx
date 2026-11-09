@@ -68,7 +68,7 @@ export function RoomsHub() {
                 <form onSubmit={create} className="panel">
                   <h3>Δημιουργία ομάδας</h3>
                   <div className="form-row"><label>Όνομα (3 έως 60 χαρακτήρες)</label><input name="name" maxLength={60} required /></div>
-                  <div className="form-row"><label>Περιγραφή (προαιρετικά, έως 200)</label><input name="desc" maxLength={200} /></div>
+                  <div className="form-row"><label>Περιγραφή (προαιρετικά, έως 200)</label><textarea name="desc" maxLength={200} rows={5} style={{ resize: "vertical" }} /></div>
                   <div className="form-row"><label>Ορατότητα</label>
                     <select name="visibility"><option value="public">Δημόσια (όλοι μπορούν να μπουν)</option><option value="private">Ιδιωτική (μόνο με κωδικό πρόσκλησης)</option></select></div>
                   <button type="submit" disabled={busy}>Δημιουργία</button>
