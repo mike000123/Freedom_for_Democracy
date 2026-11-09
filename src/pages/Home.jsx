@@ -26,7 +26,7 @@ export default function Home() {
       <div className="hero-bleed">
       <section className="wrap hero2">
         <div>
-          <p className="eyebrow">Ανεξάρτητος χώρος πολιτικού διαλόγου</p>
+          <p className="eyebrow">Φωνή σε όλα τα νέα κόμματα</p>
           <h1 className="display">Νέες ιδέες.<br />Ίσες ευκαιρίες.<br /><span className="red">Ανοιχτός διάλογος.</span></h1>
           <p>
             <Link className="btn big" to="/kommata">Δες κόμματα και ομάδες</Link>{' '}
