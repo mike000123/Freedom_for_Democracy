@@ -73,7 +73,7 @@ export function Carousel({ children, label }) {
     else el.scrollBy({ left: dir * w, behavior: 'smooth' })
   }
   useEffect(() => {
-    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.matchMedia('(hover: none), (max-width: 700px)').matches) return
     const t = setInterval(() => step(1), 2000)
     return () => clearInterval(t)
   }, [paused])
