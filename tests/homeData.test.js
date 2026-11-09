@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { summarizeLandscape, evidenceStatus, sourceUrl, readPages } from '../src/homeData.js'
 
-test('public landscape excludes private, example and graduated profiles, including their published proposals', () => {
+test('public landscape includes published examples and excludes private and graduated profiles', () => {
   const base = { kind: 'party', tier: 'in_progress', is_published: true, is_example: false, graduated: false }
   const parties = [
     { ...base, id: 'a', tier: 'full' }, { ...base, id: 'b' },
@@ -22,15 +22,16 @@ test('public landscape excludes private, example and graduated profiles, includi
   ]
   const topics = [{ id: 2, order: 1 }, { id: 1, order: 0 }, { id: 3, order: 2 }]
   const result = summarizeLandscape(parties, [...proposals, proposals[0]], topics)
-  assert.equal(result.nParties, 2)
+  assert.equal(result.nParties, 3)
   assert.equal(result.nGroups, 1)
   assert.equal(result.nFull, 1)
-  assert.equal(result.nProgress, 1)
-  assert.equal(result.proposals.length, 4)
-  assert.deepEqual(result.perTopic.map((t) => [t.id, t.n]), [[1, 3], [2, 1], [3, 0]])
+  assert.equal(result.nProgress, 2)
+  assert.equal(result.proposals.length, 5)
+  assert.deepEqual(result.perTopic.map((t) => [t.id, t.n]), [[1, 4], [2, 1], [3, 0]])
   assert.equal(result.coverage.get('a:2').id, '4')
   assert.equal(result.coverage.has('b:2'), false)
   assert.equal(result.coverage.has('private:1'), false)
+  assert.equal(result.coverage.has('example:1'), true)
   assert.equal(parties.length, 6)
   assert.equal(topics[0].id, 2)
 })
