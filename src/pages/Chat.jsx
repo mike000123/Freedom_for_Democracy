@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { sb, q } from '../supabase'
 import { useAuth } from '../auth'
@@ -8,6 +8,7 @@ import { hasLink, dbError } from './Post'
 const COLS = ['topic_id', 'party_id', 'proposal_id', 'room_id']
 const matches = (m, room) => COLS.every((c) => (room[c] ?? null) === (m[c] ?? null))
 const roomKey = (r) => JSON.stringify(COLS.map((c) => r[c] ?? null))
+const PAGE = 50
 
 // Δωμάτιο συζήτησης σε πραγματικό χρόνο. Δεν εμφανίζει τίποτα όταν η λειτουργία «chat» είναι ανενεργή.
 export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost = true, canModerate = false, noPostText = '' }) {
@@ -17,7 +18,11 @@ export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost 
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [reported, setReported] = useState({})
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingOld, setLoadingOld] = useState(false)
   const box = useRef(null)
+  const lastId = useRef(null)
+  const keepFrom = useRef(null)
   const key = roomKey(room)
   const on = useData(async () => (await sb.rpc('feature_on', { k: 'chat' })).data === true, [session?.user.id])
 
@@ -30,18 +35,36 @@ export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost 
   const addMsgs = (rows) => {
     setMsgs((cur) => {
       const ids = new Set(cur.map((m) => m.id))
-      return [...cur, ...rows.filter((r) => !ids.has(r.id))].sort((a, b) => a.id - b.id).slice(-200)
+      return [...cur, ...rows.filter((r) => !ids.has(r.id))].sort((a, b) => a.id - b.id)
     })
     addNames(rows)
+  }
+
+  const roomQuery = () => {
+    let query = sb.from('chat_messages').select('*').eq('removed', false)
+    for (const c of COLS) query = room[c] != null ? query.eq(c, room[c]) : query.is(c, null)
+    return query
+  }
+  // Φόρτωση παλαιότερων μηνυμάτων όταν ο χρήστης φτάνει στην κορυφή.
+  const loadOlder = async () => {
+    if (loadingOld || !hasMore || !msgs.length) return
+    setLoadingOld(true)
+    const { data } = await roomQuery().lt('id', msgs[0].id).order('id', { ascending: false }).limit(PAGE)
+    if (data) {
+      if (box.current) keepFrom.current = box.current.scrollHeight
+      addMsgs(data)
+      setHasMore(data.length === PAGE)
+    }
+    setLoadingOld(false)
   }
 
   useEffect(() => {
     if (!on.data) return
     let live = true
     setMsgs([])
-    let query = sb.from('chat_messages').select('*').eq('removed', false)
-    for (const c of COLS) query = room[c] != null ? query.eq(c, room[c]) : query.is(c, null)
-    query.order('id', { ascending: false }).limit(50).then(({ data }) => { if (live && data) addMsgs(data) })
+    setHasMore(false)
+    lastId.current = null
+    roomQuery().order('id', { ascending: false }).limit(PAGE).then(({ data }) => { if (live && data) { addMsgs(data); setHasMore(data.length === PAGE) } })
     const col = COLS.find((c) => room[c] != null)
     const ch = sb.channel('chat-' + key + '-' + Math.random().toString(36).slice(2))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', ...(col ? { filter: `${col}=eq.${room[col]}` } : {}) },
@@ -51,7 +74,19 @@ export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [on.data, key])
 
-  useEffect(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight }, [msgs.length])
+  // Κάτω μόνο όταν έρχεται νεότερο μήνυμα· όταν προστίθενται παλαιότερα, κρατάμε τη θέση ανάγνωσης.
+  useLayoutEffect(() => {
+    const el = box.current
+    if (!el) return
+    const newest = msgs.length ? msgs[msgs.length - 1].id : null
+    if (keepFrom.current != null) {
+      el.scrollTop = el.scrollHeight - keepFrom.current
+      keepFrom.current = null
+    } else if (newest !== lastId.current) {
+      el.scrollTop = el.scrollHeight
+    }
+    lastId.current = newest
+  }, [msgs])
 
   if (!on.data) return null
 
@@ -81,8 +116,10 @@ export function Chat({ room, title = 'Ζωντανή συζήτηση', canPost 
   return (
     <section className="chat">
       <h2>{title}</h2>
-      <p className="note">Μηνύματα σε πραγματικό χρόνο, από πολίτες με επαληθευμένο email. Ένα μήνυμα ανά 3 δευτερόλεπτα, χωρίς σύνδεσμους. Δείχνουμε τα τελευταία 50.</p>
-      <div ref={box} className="panel" style={{ maxHeight: 360, overflowY: 'auto' }}>
+      <p className="note">Μηνύματα σε πραγματικό χρόνο, από πολίτες με επαληθευμένο email. Ένα μήνυμα ανά 3 δευτερόλεπτα, χωρίς σύνδεσμους. Δείχνουμε τα τελευταία 50· κυλήστε προς τα πάνω για να δείτε όλη τη συζήτηση.</p>
+      <div ref={box} className="panel" style={{ maxHeight: 360, overflowY: 'auto' }}
+        onScroll={(e) => { if (e.currentTarget.scrollTop < 40) loadOlder() }}>
+        {hasMore && <p className="note" style={{ textAlign: 'center' }}>{loadingOld ? 'Φόρτωση…' : <button className="link" type="button" onClick={loadOlder}>Φόρτωση παλαιότερων μηνυμάτων</button>}</p>}
         {msgs.length ? msgs.map((m) => (
           <p key={m.id} style={{ margin: '0 0 .6rem' }}>
             <strong>{names[m.author_id]?.display_name ?? '…'}</strong>{' '}
