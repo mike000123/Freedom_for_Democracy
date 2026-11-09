@@ -11,10 +11,10 @@ export default function Home() {
     const [parties, proposals, topics] = await Promise.all([
       readPages((from, to) => q(sb.from('parties')
         .select('id,name,slug,kind,tier,is_published,is_example,graduated,profile_source,image_path,website')
-        .eq('is_published', true).eq('is_example', false).eq('graduated', false).order('id').range(from, to))),
+        .eq('is_published', true).eq('graduated', false).order('id').range(from, to))),
       readPages((from, to) => q(sb.from('proposals')
         .select('id,party_id,topic_id,title,is_published,party:parties!inner(is_published,is_example,graduated)')
-        .eq('is_published', true).eq('party.is_published', true).eq('party.is_example', false).eq('party.graduated', false)
+        .eq('is_published', true).eq('party.is_published', true).eq('party.graduated', false)
         .order('id').range(from, to))),
       readPages((from, to) => q(sb.from('topics').select('id,name,slug,order').order('order').order('id').range(from, to))),
     ])

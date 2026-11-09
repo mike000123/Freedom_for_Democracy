@@ -34,7 +34,7 @@ function LandscapeStats({ data: d }) {
             [d.topics.length, 'Θεματικές ενότητες', '/themata'],
           ].map(([n, label, to]) => <Link className="stat" to={to} key={label}><strong>{format(n)}</strong><span>{label}</span></Link>)}
         </div>
-        <p className="note landscape-scope">Μετρούν μόνο δημοσιευμένα προφίλ και προτάσεις. Εξαιρούνται δείγματα και απόφοιτα προφίλ. Δεν υπάρχει κατάταξη κομμάτων.</p>
+        <p className="note landscape-scope">Μετρούν μόνο δημοσιευμένα προφίλ και προτάσεις. Εξαιρούνται απόφοιτα προφίλ. Δεν υπάρχει κατάταξη κομμάτων.</p>
         <div className="landscape-charts">
           <div className="chart coverage-chart">
             <h3>Πού υπάρχουν δημοσιευμένες θέσεις;</h3>

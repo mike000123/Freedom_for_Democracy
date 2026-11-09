@@ -9,7 +9,7 @@ export async function readPages(fetchPage, size = 200) {
 }
 
 export function summarizeLandscape(parties, proposals, topics) {
-  const visible = parties.filter((p) => p.is_published && !p.is_example && !p.graduated && ['party', 'group'].includes(p.kind))
+  const visible = parties.filter((p) => p.is_published && !p.graduated && ['party', 'group'].includes(p.kind))
   const partyIds = new Set(visible.map((p) => p.id))
   const orderedTopics = [...topics].sort((a, b) => a.order - b.order || a.id - b.id)
   const topicIds = new Set(orderedTopics.map((t) => t.id))
