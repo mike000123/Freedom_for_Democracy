@@ -199,7 +199,6 @@ export function Proposal() {
       <p className="note"><Link to={`/themata/${p.topic.slug}`}>{p.topic.name}</Link> · <Link to={`/kommata/${p.party.slug}`}>{p.party.name}</Link>{p.party.is_example && <> <span className="pill pill-example">Παράδειγμα</span></>}</p>
       <h1>{p.title}</h1>
       <div className="panel"><Sections p={p} /><Source url={p.source} /></div>
-      <Chat room={{ proposal_id: p.id }} />
       <Discussion column="proposal_id" id={p.id} kinds={PROPOSAL_KINDS} ownerParty={p.party_id} />
     </div>
   )
@@ -276,6 +275,7 @@ function CommentItem({ c, replies, authors, parties, me, replyTo, reload }) {
 }
 
 function Discussion({ column, id, kinds, ownerParty }) {
+  const isProposal = column === 'proposal_id' || column === 'citizen_proposal_id'
   const { partyId } = useMembership()
   const canOfficial = partyId && (column === 'question_id' || (column === 'proposal_id' && ownerParty === partyId))
   const [random, setRandom] = useState(false)
@@ -305,7 +305,8 @@ function Discussion({ column, id, kinds, ownerParty }) {
   if (random) roots = shuffle(roots)
   return (
     <>
-      <h2>Συζήτηση</h2>
+      <h2>{isProposal ? 'Επιχειρήματα και ερωτήσεις' : 'Συζήτηση'}</h2>
+      {isProposal && <p className="note">Εδώ συγκεντρώνουμε επιχειρήματα υπέρ ή κατά και ερωτήσεις για την πρόταση. Για ζωντανή κουβέντα, μεταβείτε στη <Link to="/sizitisi">Συζήτηση</Link>.</p>}
       <p className="note">
         Εμφάνιση: <button className="link" type="button" onClick={() => setRandom(false)}>χρονολογικά</button> · <button className="link" type="button" onClick={() => setRandom(true)}>τυχαία σειρά</button>
       </p>
@@ -324,8 +325,8 @@ function Discussion({ column, id, kinds, ownerParty }) {
             </div>
           )}
         </div>
-      )) : <p className="note">Δεν υπάρχουν σχόλια ακόμη.</p>}
-      <h3>Προσθέστε σχόλιο</h3>
+      )) : <p className="note">{isProposal ? 'Δεν έχουν κατατεθεί ακόμη επιχειρήματα ή ερωτήσεις.' : 'Δεν υπάρχουν σχόλια ακόμη.'}</p>}
+      <h3>{isProposal ? 'Προσθέστε επιχείρημα ή ερώτηση' : 'Προσθέστε σχόλιο'}</h3>
       <CommentForm column={column} id={id} kinds={kinds} onDone={reload} />
     </>
   )
