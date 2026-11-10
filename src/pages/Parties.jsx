@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { sb, q, partyImageUrl } from '../supabase'
-import { useData, useTitle, shuffle, lines, fmtDateTime, KIND, TIER } from '../util'
-import { Chat } from './Chat'
+import { sb, q } from '../supabase'
+import { useData, useTitle, shuffle } from '../util'
 import { Loading, PartyCard, Carousel } from '../components'
-import SocialIcon from '../icons/SocialIcon'
+import PartyProfile from '../components/PartyProfile'
+import { useAuth } from '../auth'
 import { useIsAdmin } from './Admin'
 
 const countBy = (rows) => rows.reduce((m, r) => ((m[r.party_id] = (m[r.party_id] || 0) + 1), m), {})
@@ -151,189 +151,26 @@ export function Catalog() {
   )
 }
 
-const SOCIALS = [
-  ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['x_url', 'X (Twitter)'],
-  ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['linkedin', 'LinkedIn'],
-]
-const OFFICE = { held: 'Δημόσια θητεία', party: 'Κομματική θητεία' }
-
 export function Party() {
   const { slug } = useParams()
-  const [open, setOpen] = useState(null)
-  const dlg = useRef(null)
+  const { session, loading } = useAuth()
+  const viewerId = session?.user.id || ''
   const { isAdmin } = useIsAdmin()
   const s = useData(async () => {
     const party = (await q(sb.from('parties').select('*').eq('slug', slug).limit(1)))[0]
     if (!party) throw new Error('Το προφίλ δεν βρέθηκε.')
-    const [people, videos, proposals, changes] = await Promise.all([
+    const [people, videos, proposals, changes, topics] = await Promise.all([
       q(sb.from('party_people').select('*').eq('party_id', party.id)),
       q(sb.from('party_videos').select('*').eq('party_id', party.id).order('position')),
-      q(sb.from('proposals').select('id,title,topic:topics(name,slug,order)').eq('party_id', party.id).eq('is_published', true)),
+      q(sb.from('proposals').select('id,title,action,topic_id,is_published,topic:topics(id,name,slug,order)').eq('party_id', party.id).eq('is_published', true)),
       q(sb.from('change_log').select('*').eq('party_id', party.id).order('at', { ascending: false })),
+      q(sb.from('topics').select('id,name,slug,order').order('order')),
     ])
-    proposals.sort((a, b) => a.topic.order - b.topic.order)
-    return { party, people, videos, proposals, changes }
-  }, [slug])
+    return { party, people, videos, proposals, changes, topics, viewerId, requestedSlug: slug }
+  }, [slug, viewerId])
   useTitle(s.data?.party.name)
+  // A different profile or account must not briefly display the previous data.
+  if (loading || (s.data && (s.data.requestedSlug !== slug || s.data.viewerId !== viewerId))) return <Loading state={{ loading: true }} />
   if (!s.data) return <Loading state={s} />
-  const { party, people, videos, proposals, changes } = s.data
-
-  const resp = lines(party.responsible_persons)
-  const founders = lines(party.founders)
-  const names = [...resp, ...founders.filter((n) => !resp.includes(n))]
-  const cards = names.map((name) => ({
-    name,
-    role: resp.includes(name) && founders.includes(name) ? 'Υπεύθυνο πρόσωπο και ιδρυτής' : resp.includes(name) ? 'Υπεύθυνο πρόσωπο' : 'Ιδρυτής',
-    person: people.find((p) => p.name === name),
-  }))
-  const opened = cards.find((c) => c.name === open)
-  const show = (name) => { setOpen(name); setTimeout(() => dlg.current?.showModal(), 0) }
-  const img = partyImageUrl(party)
-  const label = party.kind === 'group' ? 'η ομάδα' : 'το κόμμα'
-  const socials = SOCIALS.filter(([k]) => party[k])
-
-  return (
-    <div className="wrap pad">
-      <p className="crumb"><Link to="/kommata">Κόμματα και ομάδες</Link> / {party.name}</p>
-      <p className="eyebrow">{KIND[party.kind]}</p>
-      {img && <div className={`party-img${!party.image_path ? ' party-logo' : ''}`}><img src={img} alt={!party.image_path ? `Λογότυπο ${party.name}` : ''} /></div>}
-      <div className="head-row">
-        <div className="party-heading">
-          <h1>{party.name}</h1>
-          {socials.length > 0 && (
-            <ul className="social party-social" aria-label="Κοινωνικά δίκτυα">
-              {socials.map(([k, name]) => (
-                <li key={k}>
-                  <a href={party[k]} rel="noopener noreferrer nofollow" target="_blank" aria-label={name} title={name}>
-                    <SocialIcon platform={k} />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        {!party.is_published && <Link className="btn" to={isAdmin ? `/to-komma-mou?kommatos=${party.id}` : '/to-komma-mou'} title="Αυτή η σελίδα δεν είναι ορατή σε επισκέπτες">✕ Κλείσιμο προεπισκόπησης</Link>}
-      </div>
-      <p>
-        {party.is_example && <span className="pill pill-example">Παράδειγμα</span>}
-        <span className="pill">{KIND[party.kind]}</span>
-        {!party.is_example && (party.profile_source === 'party_verified'
-          ? <span className="pill pill-teal">Επιβεβαιωμένο από το κόμμα</span>
-          : <span className="pill pill-soft">Από δημόσιες πηγές · δεν έχει επιβεβαιωθεί από το κόμμα</span>)}
-        <span className={`pill${party.tier === 'full' ? ' pill-teal' : ''}`}>{TIER[party.tier]}</span>
-        {party.graduated && <span className="pill pill-accent">Απόφοιτο: εκπροσωπείται στη Βουλή, εκτός εναλλαγής</span>}
-      </p>
-      {party.slogan && <p className="lead">{party.slogan}</p>}
-
-      <div className="panel">
-        <dl className="fields">
-          <dt>Πρόσωπα</dt>
-          <dd className="people">
-            {cards.map((c) => <button key={c.name} type="button" className="person-btn" onClick={() => show(c.name)}>{c.name}<small>{c.role}</small></button>)}
-          </dd>
-          {party.founded_year && <><dt>Έτος ίδρυσης</dt><dd>{party.founded_year}</dd></>}
-          {party.founders_prior_service && <><dt>Ένδειξη</dt><dd>Ιδρυτές με προηγούμενη κοινοβουλευτική θητεία.</dd></>}
-          {party.funding && <><dt>Χρηματοδότηση</dt><dd>{party.funding}</dd></>}
-          {party.legal_status && <><dt>Νομική υπόσταση</dt><dd style={{ whiteSpace: 'pre-wrap' }}>{party.legal_status}</dd></>}
-          {party.team && <><dt>Ομάδα και όργανα</dt><dd style={{ whiteSpace: 'pre-wrap' }}>{party.team}</dd></>}
-          {party.contact_email && <><dt>Επικοινωνία</dt><dd><a href={`mailto:${party.contact_email}`}>{party.contact_email}</a></dd></>}
-          {party.website && <><dt>Επίσημη ιστοσελίδα</dt><dd><a href={party.website} rel="noopener nofollow">{party.website}</a></dd></>}
-        </dl>
-      </div>
-
-      {[['positions_url', 'Οι θέσεις του κόμματος'], ['news_url', 'Νέα και ανακοινώσεις'], ['membership_url', 'Εγγραφή μελών'], ['donate_url', 'Οικονομική ενίσχυση']].some(([k]) => party[k]) && (
-        <div className="panel">
-          <h2>Χρήσιμοι σύνδεσμοι (από το ίδιο το κόμμα)</h2>
-          <ul>
-            {[['positions_url', 'Οι θέσεις του κόμματος'], ['news_url', 'Νέα και ανακοινώσεις'], ['membership_url', 'Εγγραφή μελών'], ['donate_url', 'Οικονομική ενίσχυση']].filter(([k]) => party[k]).map(([k, l]) => (
-              <li key={k}><a href={party[k]} rel="noopener nofollow" target="_blank">{l}</a></li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {(party.manifesto || party.manifesto_url) && (
-        <div className="panel">
-          <h2>Διακήρυξη</h2>
-          {party.manifesto && <p style={{ whiteSpace: 'pre-wrap' }}>{party.manifesto}</p>}
-          {party.manifesto_url && <p><a href={party.manifesto_url} rel="noopener nofollow" target="_blank">Επίσημο κείμενο της διακήρυξης</a></p>}
-        </div>
-      )}
-
-      <dialog ref={dlg} className="person-pop" onClose={() => setOpen(null)} onClick={(e) => e.target === dlg.current && dlg.current.close()}>
-        {opened && (
-          <>
-            <button type="button" className="pop-close" onClick={() => dlg.current.close()} aria-label="Κλείσιμο">×</button>
-            <p className="eyebrow-s">{opened.role}</p>
-            <h3>{opened.name}</h3>
-            {opened.person ? (
-              <dl className="bio">
-                {opened.person.occupation && <><dt>Ιδιότητα</dt><dd>{opened.person.occupation}</dd></>}
-                {opened.person.education && <><dt>Εκπαίδευση</dt><dd>{opened.person.education}</dd></>}
-                {opened.person.experience && <><dt>Εμπειρία</dt><dd>{opened.person.experience}</dd></>}
-                <dt>Προηγούμενη θητεία</dt>
-                <dd>{opened.person.public_office === 'none' ? 'Καμία δημόσια ή κομματική θητεία' : `${OFFICE[opened.person.public_office]}: ${opened.person.office_details}`}</dd>
-                {opened.person.motivation && <><dt>Γιατί συμμετέχει</dt><dd>{opened.person.motivation}</dd></>}
-              </dl>
-            ) : <p className="note">Δεν έχει προστεθεί βιογραφικό.</p>}
-            {opened.person?.social_url && (
-              <ul className="social"><li><a href={opened.person.social_url} rel="noopener nofollow" target="_blank" aria-label="Προφίλ σε κοινωνικό δίκτυο" title="Προφίλ σε κοινωνικό δίκτυο">↗</a></li></ul>
-            )}
-          </>
-        )}
-      </dialog>
-
-      {videos.length > 0 && (
-        <>
-          <h2>Βίντεο που προωθεί {label}</h2>
-          <ul className="videos">
-            {videos.map((v) => (
-              <li key={v.id}><a href={v.url} rel="noopener nofollow" target="_blank"><span className="vplay" aria-hidden="true">▶</span><span>{v.title}<small>Άνοιγμα στο YouTube</small></span></a></li>
-            ))}
-          </ul>
-          <p className="note">Τα βίντεο επιλέγονται από το ίδιο το κόμμα και ανοίγουν στο YouTube. Η πλατφόρμα δεν τα φιλοξενεί και δεν τα αξιολογεί.</p>
-        </>
-      )}
-
-      <h2>Δομημένες προτάσεις</h2>
-      {proposals.length ? (
-        <table>
-          <thead><tr><th>Θέμα</th><th>Πρόταση</th></tr></thead>
-          <tbody>
-            {proposals.map((p) => (
-              <tr key={p.id}><td><Link to={`/themata/${p.topic.slug}`}>{p.topic.name}</Link></td><td><Link to={`/protasi/${p.id}`}>{p.title}</Link></td></tr>
-            ))}
-          </tbody>
-        </table>
-      ) : <p className="note">Δεν έχουν δημοσιευτεί προτάσεις ακόμη.</p>}
-
-      {changes.length > 0 && (
-        <>
-          <h2>Ιστορικό αλλαγών</h2>
-          <table>
-            <tbody>
-              {changes.map((c) => (
-                <tr key={c.id}>
-                  <td className="col-date">{fmtDateTime(c.at)}</td>
-                  <td>{c.summary}
-                    {c.details?.length > 0 && (
-                      <details className="diff"><summary>Τι άλλαξε ακριβώς</summary>
-                        {c.details.map((x, i) => (
-                          <div className="diff-row" key={i}><strong>{x.label}</strong><br />
-                            {x.before && <><span className="diff-before">{x.before}</span><br /></>}
-                            <span className="diff-after">{x.after || '(κενό)'}</span>
-                          </div>
-                        ))}
-                      </details>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
-      <Chat room={{ party_id: party.id }} title={`Ζωντανή συζήτηση: ${party.name}`} />
-    </div>
-  )
+  return <PartyProfile key={`${s.data.party.id}:${viewerId}`} {...s.data} isAdmin={isAdmin} />
 }
