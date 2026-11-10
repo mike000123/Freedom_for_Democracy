@@ -409,6 +409,56 @@ function Reports() {
   return all.length ? all.map(([t, c]) => <Report key={t + c.id} type={t} c={c} reload={() => setN(n + 1)} />) : <p className="note">Δεν υπάρχουν αναφορές σε αναμονή.</p>
 }
 
+// ───────── Αιτήματα διόρθωσης κομμάτων ─────────
+function Corrections() {
+  const [n, setN] = useState(0)
+  const [msg, setMsg] = useState(null)
+  const [reasons, setReasons] = useState({})
+  const s = useData(async () => {
+    const rows = await q(sb.from('party_corrections').select('*').order('created_at', { ascending: false }).limit(100))
+    const ids = [...new Set(rows.map((r) => r.party_id))]
+    const parties = ids.length ? await q(sb.from('parties').select('id,name,slug').in('id', ids)) : []
+    const pids = rows.map((r) => r.proposal_id).filter(Boolean)
+    const props = pids.length ? await q(sb.from('proposals').select('id,title').in('id', pids)) : []
+    return rows.map((r) => ({ ...r, party: parties.find((p) => p.id === r.party_id), proposal: props.find((p) => p.id === r.proposal_id) }))
+  }, [n])
+  if (!s.data) return <Loading state={s} />
+  const act = async (id, action) => {
+    setMsg(null)
+    const { error } = await sb.rpc('resolve_party_correction', { p_id: id, p_action: action, p_reason: reasons[id] || '' })
+    if (error) return setMsg({ text: error.message })
+    setN(n + 1)
+  }
+  const KINDL = { correction: 'Διόρθωση', reply: 'Δικαίωμα απάντησης', removal: 'Αίτημα απόσυρσης' }
+  const open = s.data.filter((r) => r.status === 'open'), closed = s.data.filter((r) => r.status !== 'open')
+  return (
+    <>
+      <p className="lead">Αιτήματα διόρθωσης, απάντησης ή απόσυρσης. Η αιτιολόγηση δημοσιεύεται στη «Διαφάνεια»: μη γράφετε προσωπικά στοιχεία.</p>
+      <Msg m={msg} />
+      {!open.length && <p className="note">Δεν υπάρχουν ανοιχτά αιτήματα.</p>}
+      {open.map((r) => (
+        <div className="panel" key={r.id}>
+          <h3>{KINDL[r.kind]} · {r.party ? <Link to={`/kommata/${r.party.slug}`}>{r.party.name}</Link> : '—'}</h3>
+          <p className="note">{fmtDateTime(r.created_at)}{r.proposal && <> · Πρόταση: <Link to={`/protasi/${r.proposal_id}`}>{r.proposal.title}</Link></>}</p>
+          <p style={{ whiteSpace: 'pre-wrap' }}>{r.body}</p>
+          {r.evidence_url && <p className="note">Τεκμηρίωση: <a href={r.evidence_url} rel="noopener noreferrer nofollow" target="_blank">{r.evidence_url}</a></p>}
+          <p className="note">Επικοινωνία: {r.contact_name} · <a href={`mailto:${r.contact_email}`}>{r.contact_email}</a></p>
+          <input placeholder="Αιτιολόγηση (δημόσια)" value={reasons[r.id] || ''} onChange={(e) => setReasons({ ...reasons, [r.id]: e.target.value })} style={{ width: '100%' }} />
+          <p>
+            <button type="button" onClick={() => act(r.id, 'corrected')}>Διορθώθηκε</button>{' '}
+            {r.proposal_id && <button type="button" className="ghost" onClick={() => act(r.id, 'hide_proposal')}>Απόσυρση πρότασης</button>}{' '}
+            <button type="button" className="ghost" onClick={() => act(r.id, 'hide_party')}>Απόσυρση προφίλ</button>{' '}
+            <button type="button" className="ghost" onClick={() => act(r.id, 'rejected')}>Απόρριψη</button>
+          </p>
+        </div>
+      ))}
+      {!!closed.length && <details><summary>Εξετασμένα ({closed.length})</summary>
+        {closed.map((r) => <p className="note" key={r.id}>{fmtDateTime(r.created_at)} · {r.party?.name} · {KINDL[r.kind]} · {r.status === 'rejected' ? 'απορρίφθηκε' : 'επιλύθηκε'}: {r.admin_note}</p>)}
+      </details>}
+    </>
+  )
+}
+
 // ───────── Λειτουργίες ─────────
 function Flags() {
   const [n, setN] = useState(0)
@@ -492,7 +542,7 @@ export default function Admin() {
   if (loading || al) return <Loading state={{ loading: true }} />
   if (!session) return <Navigate to="/eisodos" replace />
   if (!isAdmin) return <div className="wrap pad"><h1>Διαχείριση</h1><p className="note">Δεν έχετε πρόσβαση σε αυτή τη σελίδα.</p></div>
-  const TABS = [['apps', 'Αιτήσεις'], ['parties', 'Κόμματα'], ['reports', 'Αναφορές'], ['rooms', 'Δωμάτια'], ['flags', 'Λειτουργίες']]
+  const TABS = [['apps', 'Αιτήσεις'], ['parties', 'Κόμματα'], ['reports', 'Αναφορές'], ['corrections', 'Διορθώσεις κομμάτων'], ['rooms', 'Δωμάτια'], ['flags', 'Λειτουργίες']]
   return (
     <div className="wrap pad">
       <h1>Διαχείριση</h1>
@@ -500,6 +550,7 @@ export default function Admin() {
       {tab === 'apps' && <Applications />}
       {tab === 'parties' && <Parties />}
       {tab === 'reports' && <Reports />}
+      {tab === 'corrections' && <Corrections />}
       {tab === 'rooms' && <AdminRooms />}
       {tab === 'flags' && <Flags />}
     </div>

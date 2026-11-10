@@ -6,6 +6,7 @@ import { Loading, PartyLogo } from '../components'
 import { useAuth } from '../auth'
 import { OfficialReply, useMembership } from './Manage'
 import { Chat } from './Chat'
+import CorrectionRequest from '../components/CorrectionRequest'
 import { CommentForm, QuestionForm, ReportButton, DeleteOwnComment, KINDS, PROPOSAL_KINDS } from './Post'
 
 const SECTIONS = [
@@ -187,7 +188,7 @@ function Source({ url }) {
 export function Proposal() {
   const { id } = useParams()
   const s = useData(async () => {
-    const p = (await q(sb.from('proposals').select('*,topic:topics(name,slug),party:parties!inner(name,slug,is_example)').eq('id', id).limit(1)))[0]
+    const p = (await q(sb.from('proposals').select('*,topic:topics(name,slug),party:parties!inner(id,name,slug,kind,is_example,profile_source)').eq('id', id).limit(1)))[0]
     if (!p) throw new Error('Η πρόταση δεν βρέθηκε.')
     return p
   }, [id])
@@ -198,7 +199,9 @@ export function Proposal() {
     <div className="wrap pad">
       <p className="note"><Link to={`/themata/${p.topic.slug}`}>{p.topic.name}</Link> · <Link to={`/kommata/${p.party.slug}`}>{p.party.name}</Link>{p.party.is_example && <> <span className="pill pill-example">Παράδειγμα</span></>}</p>
       <h1>{p.title}</h1>
-      <div className="panel"><Sections p={p} /><Source url={p.source} /></div>
+      {!p.party.is_example && p.party.profile_source !== 'party_verified' && <p className="note party-source-note">Η θέση αυτή συγκεντρώθηκε από δημόσιες πηγές και δεν έχει επιβεβαιωθεί από {p.party.kind === 'group' ? 'την ομάδα' : 'το κόμμα'}. Δεν υπάρχει σχέση ή έγκριση από τον φορέα.</p>}
+      <div className="panel"><Sections p={p} /><Source url={p.source} /><p className="note">Τελευταία ενημέρωση: {fmtDate(p.updated_at)}</p></div>
+      {!p.party.is_example && <p className="note"><CorrectionRequest party={p.party} proposalId={p.id} label="Λάθος ή ανακριβής απόδοση; Ζητήστε διόρθωση ή απάντηση" /></p>}
       <Discussion column="proposal_id" id={p.id} kinds={PROPOSAL_KINDS} ownerParty={p.party_id} />
     </div>
   )

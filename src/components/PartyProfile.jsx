@@ -10,6 +10,7 @@ import SocialIcon from '../icons/SocialIcon'
 import { Chat } from '../pages/Chat'
 import { buildPartyPeople } from '../personPortraits'
 import PersonPortrait from './PersonPortrait'
+import CorrectionRequest from './CorrectionRequest'
 
 const format = (n) => n.toLocaleString('el-GR')
 const SOCIALS = [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['x_url', 'X (Twitter)'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['linkedin', 'LinkedIn']]
@@ -94,7 +95,8 @@ export default function PartyProfile({ party, topics, proposals, people, videos,
         <div className="party-identity-copy"><p className="eyebrow">Πολιτική παρουσία</p><h1>{party.name}</h1>
           {evidenceStatus(party.slogan) !== 'missing' && <p className="party-profile-slogan">{party.slogan}</p>}
           <div className="party-profile-badges"><span className="pill">{KIND[party.kind]}</span>{party.is_example ? <span className="pill pill-example">Παράδειγμα</span> : <span className={`pill ${verified ? 'pill-teal' : 'outline'}`}>{verified ? `Επιβεβαιωμένο από ${party.kind === 'group' ? 'την ομάδα' : 'το κόμμα'}` : 'Από δημόσιες πηγές'}</span>}<span className={`pill ${party.tier === 'full' ? 'pill-teal' : 'outline'}`}>{TIER[party.tier]}</span></div>
-          {!party.is_example && !verified && <p className="note party-source-note">Το περιεχόμενο δεν έχει επιβεβαιωθεί από {party.kind === 'group' ? 'την ομάδα' : 'το κόμμα'}.</p>}
+          {!party.is_example && !verified && <p className="note party-source-note">Το περιεχόμενο συγκεντρώθηκε από δημόσιες πηγές και δεν έχει επιβεβαιωθεί από {party.kind === 'group' ? 'την ομάδα' : 'το κόμμα'}. Δεν υπάρχει σχέση ή έγκριση από τον φορέα. {!!party.website && <>Δείτε πάντα την <a href={party.website} rel="noopener noreferrer nofollow" target="_blank">επίσημη ιστοσελίδα</a>. </>}</p>}
+          {!party.is_example && <p className="note"><CorrectionRequest party={party} label={verified ? 'Αίτημα διόρθωσης' : 'Εκπροσωπείτε το φορέα ή βρήκατε λάθος; Ζητήστε διόρθωση ή απάντηση'} /></p>}
           {party.graduated && <p className="note">Απόφοιτο: εκπροσωπείται στη Βουλή, εκτός εναλλαγής.</p>}
         </div>
         {(socials.length > 0 || party.website) && <div className="party-identity-actions">
