@@ -1,0 +1,60 @@
+{
+  "reviewedAt": "2026-11-10",
+  "portraits": [
+    {
+      "name": "Αλέξης Τσίπρας",
+      "file": "alexis-tsipras-66dff94636.jpg",
+      "sourceUrl": "https://www.myelas.gr/el",
+      "imageUrl": "https://www.myelas.gr/_next/image?url=https%3A%2F%2Fapi.myelas.gr%2Fmedia%2Fgz5kt0ym%2Falexis-tsipras-elas-komma.webp%3Fwidth%3D1500%26height%3D2146%26rmode%3Dcrop%26rxy%3D0.5211426000899685%252C0.4750337381916329&w=640&q=75",
+      "width": 640,
+      "height": 916,
+      "bytes": 25703,
+      "sha256": "66dff946364334e36e09e8c9594c9ce956a00b7bd9138bddaeef45a57bb21581",
+      "reviewedAt": "2026-11-10"
+    },
+    {
+      "name": "Μαρία Καρυστιανού",
+      "file": "maria-karystianou-b8a31f1f04.webp",
+      "sourceUrl": "https://elpidagiatidimokratia.com/poioi-eimaste/",
+      "imageUrl": "https://elpidagiatidimokratia.com/wp-content/uploads/2026/06/MARIA-KARYSTIANOU-2-1.webp?id=7263",
+      "width": 1920,
+      "height": 1280,
+      "bytes": 206870,
+      "sha256": "b8a31f1f04dd7e6a17cce3c1a46b2af70d5eef4f8ee80c57b76a4a7b6cad6b6e",
+      "reviewedAt": "2026-11-10"
+    },
+    {
+      "name": "Αφροδίτη Λατινοπούλου",
+      "file": "afroditi-latinopoulou-44b0ebe947.jpg",
+      "sourceUrl": "https://fonilogikis.gr/organosi/proedros-afroditi-latinopoulou/",
+      "imageUrl": "https://fonilogikis.gr/wp-content/uploads/2023/03/afroditi-latinopoulou-bg.jpg",
+      "width": 2200,
+      "height": 1302,
+      "bytes": 53438,
+      "sha256": "44b0ebe9474c421051fa8fb504b7e948369ca4ce381aea3681b9570d76b3928a",
+      "reviewedAt": "2026-11-10"
+    },
+    {
+      "name": "Αρτέμης Σώρρας",
+      "file": "artemis-sorras-2db57a8f9f.jpg",
+      "sourceUrl": "https://www.e-sy.gr/artemis-sorras/",
+      "imageUrl": "https://www.e-sy.gr/wp-content/uploads/2021/04/ΑΡΤΕΜΗΣ-ΣΩΡΡΑΣ.jpg",
+      "width": 1280,
+      "height": 853,
+      "bytes": 156027,
+      "sha256": "2db57a8f9f45cf06a7e2cb884573488ddd0cf97db6d6f6f3f189f9a31a813c32",
+      "reviewedAt": "2026-11-10"
+    },
+    {
+      "name": "Μάνος Κώνστας",
+      "file": "manos-konstas-436ae6a126.jpg",
+      "sourceUrl": "https://ethnikometopo.gr/president/",
+      "imageUrl": "https://ethnikometopo.gr/wp-content/uploads/2025/10/ΜΑΝΟΣ.jpg",
+      "width": 1080,
+      "height": 1080,
+      "bytes": 24145,
+      "sha256": "436ae6a12628fe984c13bc47a6152617c6fcdec5b0de7448c8e3dafee6a45012",
+      "reviewedAt": "2026-11-10"
+    }
+  ]
+}

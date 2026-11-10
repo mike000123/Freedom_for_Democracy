@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { KIND, TIER, fmtDateTime, lines } from '../util'
+import { KIND, TIER, lines } from '../util'
 import { partyImageUrl } from '../supabase'
 import { evidenceStatus } from '../homeData'
 import { filterPartyTopics, groupPartyProposals, partyTopicIcon, partyTopicPage } from '../partyProfileData'
@@ -8,11 +8,13 @@ import { PartyLogo } from '../components'
 import DiscussionIcon from '../icons/DiscussionIcon'
 import SocialIcon from '../icons/SocialIcon'
 import { Chat } from '../pages/Chat'
+import { buildPartyPeople } from '../personPortraits'
+import PersonPortrait from './PersonPortrait'
 
 const format = (n) => n.toLocaleString('el-GR')
 const SOCIALS = [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['x_url', 'X (Twitter)'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['linkedin', 'LinkedIn']]
 const SOURCES = [['manifesto_url', 'Επίσημο κείμενο διακήρυξης'], ['positions_url', 'Οι θέσεις του κόμματος'], ['news_url', 'Νέα και ανακοινώσεις'], ['membership_url', 'Εγγραφή μελών'], ['donate_url', 'Οικονομική ενίσχυση']]
-const TABS = [['proposals', 'Προτάσεις'], ['identity', 'Ταυτότητα'], ['people', 'Πρόσωπα'], ['videos', 'Βίντεο'], ['history', 'Ιστορικό'], ['discussion', 'Συζήτηση']]
+const TABS = [['proposals', 'Προτάσεις'], ['identity', 'Ταυτότητα'], ['people', 'Πρόσωπα'], ['videos', 'Βίντεο'], ['discussion', 'Συζήτηση']]
 const OFFICE = { held: 'Δημόσια θητεία', party: 'Κομματική θητεία' }
 
 function ProfileDialog({ open, onClose, titleId, children }) {
@@ -39,7 +41,7 @@ function TopicCard({ topic, onOpen }) {
   </article>
 }
 
-export default function PartyProfile({ party, topics, proposals, people, videos, changes, isAdmin }) {
+export default function PartyProfile({ party, topics, proposals, people, videos, isAdmin }) {
   const [params, setParams] = useSearchParams()
   const tab = TABS.some(([id]) => id === params.get('tab')) ? params.get('tab') : 'proposals'
   const [query, setQuery] = useState('')
@@ -48,7 +50,6 @@ export default function PartyProfile({ party, topics, proposals, people, videos,
   const [pageSize, setPageSize] = useState(() => window.matchMedia('(max-width: 600px)').matches ? 4 : 8)
   const [topicOpen, setTopicOpen] = useState(null)
   const [personOpen, setPersonOpen] = useState(null)
-  const [historyLimit, setHistoryLimit] = useState(10)
   const panel = useRef(null)
   const groups = useMemo(() => groupPartyProposals(topics, proposals), [topics, proposals])
   const filtered = filterPartyTopics(groups, query, status)
@@ -62,8 +63,7 @@ export default function PartyProfile({ party, topics, proposals, people, videos,
   const covered = groups.filter((g) => g.proposals.length).length
   const proposalCount = groups.reduce((sum, g) => sum + g.proposals.length, 0)
   const responsible = lines(party.responsible_persons), founders = lines(party.founders)
-  const names = [...new Set([...responsible, ...founders, ...people.map((p) => p.name)])]
-  const persons = names.map((name) => ({ name, person: people.find((p) => p.name === name), role: responsible.includes(name) && founders.includes(name) ? 'Υπεύθυνο πρόσωπο και ιδρυτής' : responsible.includes(name) ? 'Υπεύθυνο πρόσωπο' : founders.includes(name) ? 'Ιδρυτής' : 'Βιογραφικό' }))
+  const persons = buildPartyPeople(party, people)
   const socials = SOCIALS.filter(([key]) => party[key])
   const sources = SOURCES.filter(([key]) => party[key]).map(([key, label]) => [key, key === 'positions_url' && party.kind === 'group' ? 'Οι θέσεις της ομάδας' : label])
   const hasSources = !!(party.manifesto || sources.length)
@@ -130,12 +130,11 @@ export default function PartyProfile({ party, topics, proposals, people, videos,
         {(party.manifesto || party.manifesto_url) && <section className="party-information-panel"><h3>Διακήρυξη</h3>{party.manifesto && <p className="party-full-text">{party.manifesto}</p>}{party.manifesto_url && <p><a href={party.manifesto_url} rel="noopener noreferrer nofollow" target="_blank">Επίσημο κείμενο της διακήρυξης <DiscussionIcon name="external" className="external-link-icon" /></a></p>}</section>}
         {!!sources.filter(([key]) => key !== 'manifesto_url').length && <section className="party-information-panel"><h3>Χρήσιμοι σύνδεσμοι</h3><ul className="party-source-links">{sources.filter(([key]) => key !== 'manifesto_url').map(([key, label]) => <li key={key}><a href={party[key]} rel="noopener noreferrer nofollow" target="_blank">{label} <DiscussionIcon name="external" className="external-link-icon" /></a></li>)}</ul></section>}
       </>}
-      {tab === 'people' && <><h2>Πρόσωπα</h2><p className="note">Γνώρισε τους ιδρυτές και τα πρόσωπα που έχουν καταχωριστεί στο προφίλ.</p>{persons.length ? <div className="party-person-grid">{persons.map((person) => <button type="button" className="person-btn" key={person.name} onClick={() => setPersonOpen(person)}><DiscussionIcon name="person" /><span>{person.name}<small>{person.role}</small><small className="party-person-action">Δες το βιογραφικό →</small></span></button>)}</div> : <p className="party-profile-empty">Δεν έχουν καταχωριστεί πρόσωπα ακόμη.</p>}</>}
+      {tab === 'people' && <><h2>Πρόσωπα</h2><p className="note">Γνώρισε τους ιδρυτές και τα πρόσωπα που έχουν καταχωριστεί στο προφίλ.</p>{persons.length ? <div className="party-person-grid">{persons.map((person) => <button type="button" className="person-btn" key={person.name} onClick={() => setPersonOpen(person)}><PersonPortrait person={person} /><span className="party-person-copy">{person.name}<small>{person.role}</small><small className="party-person-action">Δες το βιογραφικό →</small></span></button>)}</div> : <p className="party-profile-empty">Δεν έχουν καταχωριστεί πρόσωπα ακόμη.</p>}</>}
       {tab === 'videos' && <><h2>Βίντεο</h2>{videos.length ? <><ul className="videos">{videos.map((video) => <li key={video.id}><a href={video.url} rel="noopener noreferrer nofollow" target="_blank"><span className="vplay" aria-hidden="true">▶</span><span>{video.title}<small>Άνοιγμα στο YouTube</small></span></a></li>)}</ul><p className="note">Τα βίντεο ανοίγουν στο YouTube. Η πλατφόρμα δεν τα φιλοξενεί και δεν τα αξιολογεί.</p></> : <p className="party-profile-empty">Δεν έχουν καταχωριστεί βίντεο ακόμη.</p>}</>}
-      {tab === 'history' && <><h2>Ιστορικό αλλαγών</h2>{changes.length ? <><ol className="party-history">{changes.slice(0, historyLimit).map((change) => <li key={change.id}><time dateTime={change.at}>{fmtDateTime(change.at)}</time><h3>{change.summary}</h3>{change.details?.length > 0 && <details className="diff"><summary>Τι άλλαξε ακριβώς</summary>{change.details.map((item, index) => <div className="diff-row" key={index}><strong>{item.label}</strong><br />{item.before && <><span className="diff-before">{item.before}</span><br /></>}<span className="diff-after">{item.after || '(κενό)'}</span></div>)}</details>}</li>)}</ol>{historyLimit < changes.length && <button type="button" className="btn ghost" onClick={() => setHistoryLimit((limit) => limit + 10)}>Παλαιότερες αλλαγές</button>}</> : <p className="party-profile-empty">Δεν έχουν καταγραφεί αλλαγές ακόμη.</p>}</>}
       {tab === 'discussion' && <><p className="note">Για τις δημόσιες ομάδες και το γενικό δωμάτιο, μεταβείτε στη <Link to="/sizitisi">Συζήτηση</Link>.</p><Chat room={{ party_id: party.id }} title={`Ζωντανή συζήτηση: ${party.name}`} /></>}
     </div>
     <ProfileDialog open={!!topicOpen} onClose={() => setTopicOpen(null)} titleId="party-topic-dialog-title">{topicOpen && <><p className="eyebrow">Δημοσιευμένες προτάσεις</p><h2 id="party-topic-dialog-title">{topicOpen.name}</h2><p className="note">{party.name} · {format(topicOpen.proposals.length)} προτάσεις</p><ul className="party-proposal-list">{topicOpen.proposals.map((p) => <li key={p.id}><h3><Link to={`/protasi/${p.id}`}>{p.title}</Link></h3>{p.action && <p>{p.action}</p>}<Link to={`/protasi/${p.id}`}>Δες την πρόταση →</Link></li>)}</ul></>}</ProfileDialog>
-    <ProfileDialog open={!!personOpen} onClose={() => setPersonOpen(null)} titleId="party-person-dialog-title">{personOpen && <><p className="eyebrow">{personOpen.role}</p><h2 id="party-person-dialog-title">{personOpen.name}</h2>{personOpen.person ? <dl className="bio">{[['Ιδιότητα', personOpen.person.occupation], ['Εκπαίδευση', personOpen.person.education], ['Εμπειρία', personOpen.person.experience]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}<dt>Προηγούμενη θητεία</dt><dd>{personOpen.person.public_office === 'none' ? 'Καμία δημόσια ή κομματική θητεία' : OFFICE[personOpen.person.public_office] ? `${OFFICE[personOpen.person.public_office]}: ${personOpen.person.office_details || '—'}` : 'Δεν έχει καταγραφεί.'}</dd>{personOpen.person.motivation && <><dt>Γιατί συμμετέχει</dt><dd>{personOpen.person.motivation}</dd></>}</dl> : <p className="note">Δεν έχει προστεθεί βιογραφικό.</p>}{personOpen.person?.social_url && <p><a href={personOpen.person.social_url} rel="noopener noreferrer nofollow" target="_blank">Προφίλ σε κοινωνικό δίκτυο <DiscussionIcon name="external" className="external-link-icon" /></a></p>}</>}</ProfileDialog>
+    <ProfileDialog open={!!personOpen} onClose={() => setPersonOpen(null)} titleId="party-person-dialog-title">{personOpen && <><div className="party-person-bio-heading"><PersonPortrait person={personOpen} large /><div><p className="eyebrow">{personOpen.role}</p><h2 id="party-person-dialog-title">{personOpen.name}</h2></div></div>{personOpen.contexts.length > 0 && <details className="party-person-context"><summary>Πώς αναφέρεται στο προφίλ</summary>{personOpen.contexts.map((text) => <p key={text}>{text}</p>)}</details>}{personOpen.person ? <dl className="bio">{[['Ιδιότητα', personOpen.person.occupation], ['Εκπαίδευση', personOpen.person.education], ['Εμπειρία', personOpen.person.experience]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}<dt>Προηγούμενη θητεία</dt><dd>{personOpen.person.public_office === 'none' ? 'Καμία δημόσια ή κομματική θητεία' : OFFICE[personOpen.person.public_office] ? `${OFFICE[personOpen.person.public_office]}: ${personOpen.person.office_details || '—'}` : 'Δεν έχει καταγραφεί.'}</dd>{personOpen.person.motivation && <><dt>Γιατί συμμετέχει</dt><dd>{personOpen.person.motivation}</dd></>}</dl> : <p className="note">Δεν έχει προστεθεί βιογραφικό.</p>}{personOpen.portrait && <p className="party-photo-source"><a href={personOpen.portrait.sourceUrl} rel="noopener noreferrer nofollow" target="_blank">Πηγή φωτογραφίας <DiscussionIcon name="external" className="external-link-icon" /></a></p>}{personOpen.person?.social_url && <p><a href={personOpen.person.social_url} rel="noopener noreferrer nofollow" target="_blank">Προφίλ σε κοινωνικό δίκτυο <DiscussionIcon name="external" className="external-link-icon" /></a></p>}</>}</ProfileDialog>
   </div>
 }

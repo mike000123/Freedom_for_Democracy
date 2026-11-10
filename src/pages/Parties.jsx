@@ -159,14 +159,13 @@ export function Party() {
   const s = useData(async () => {
     const party = (await q(sb.from('parties').select('*').eq('slug', slug).limit(1)))[0]
     if (!party) throw new Error('Το προφίλ δεν βρέθηκε.')
-    const [people, videos, proposals, changes, topics] = await Promise.all([
+    const [people, videos, proposals, topics] = await Promise.all([
       q(sb.from('party_people').select('*').eq('party_id', party.id)),
       q(sb.from('party_videos').select('*').eq('party_id', party.id).order('position')),
       q(sb.from('proposals').select('id,title,action,topic_id,is_published,topic:topics(id,name,slug,order)').eq('party_id', party.id).eq('is_published', true)),
-      q(sb.from('change_log').select('*').eq('party_id', party.id).order('at', { ascending: false })),
       q(sb.from('topics').select('id,name,slug,order').order('order')),
     ])
-    return { party, people, videos, proposals, changes, topics, viewerId, requestedSlug: slug }
+    return { party, people, videos, proposals, topics, viewerId, requestedSlug: slug }
   }, [slug, viewerId])
   useTitle(s.data?.party.name)
   // A different profile or account must not briefly display the previous data.
