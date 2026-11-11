@@ -42,6 +42,7 @@ export function Register() {
     if ((f.get('password') || '').length < 8) return setErr('Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες.')
     if (f.get('password') !== f.get('password2')) return setErr('Οι δύο κωδικοί δεν ταιριάζουν.')
     if (!f.get('consent')) return setErr('Χρειάζεται η συγκατάθεσή σας για την αποθήκευση του email.')
+    if (!f.get('consent_public')) return setErr('Χρειάζεται να επιβεβαιώσετε ότι κατανοείτε πως τα δημόσια μηνύματα φαίνονται σε όλους.')
     setBusy(true)
     const ok = await sb.rpc('display_name_available', { p_name: name })
     if (ok.error || ok.data === false) { setBusy(false); return setErr('Το όνομα χρησιμοποιείται ήδη. Διαλέξτε άλλο.') }
@@ -86,6 +87,7 @@ export function Register() {
           <Field label="Κωδικός (τουλάχιστον 8 χαρακτήρες)" id="password"><input type="password" id="password" name="password" minLength={8} required autoComplete="new-password" /></Field>
           <Field label="Επανάληψη κωδικού" id="password2"><input type="password" id="password2" name="password2" required autoComplete="new-password" /></Field>
           <p><label><input type="checkbox" name="consent" /> Συμφωνώ να αποθηκευτεί το email μου για τη λειτουργία του λογαριασμού. Μπορώ να τον διαγράψω οποτεδήποτε. Δείτε την <Link to="/aporrito">πολιτική απορρήτου</Link>.</label></p>
+          <p><label><input type="checkbox" name="consent_public" /> Καταλαβαίνω ότι ό,τι γράφω σε δημόσιες σελίδες και δημόσια δωμάτια φαίνεται σε όλους και μπορεί να αποκαλύπτει πολιτικές μου απόψεις, και ότι το επιλέγω ο ίδιος.</label></p>
           {err && <p className="errorlist">{err}</p>}
           <button type="submit" disabled={busy}>{busy ? 'Παρακαλώ περιμένετε…' : 'Δημιουργία λογαριασμού'}</button>
           <p className="note">Έχετε ήδη λογαριασμό; <Link to="/eisodos">Σύνδεση</Link></p>
