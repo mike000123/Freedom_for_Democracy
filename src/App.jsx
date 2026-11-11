@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import Home from './pages/Home'
 import { Catalog, Party } from './pages/Parties'
 import { Topics, Topic, Proposal, CitizenProposal, Question } from './pages/Topics'
-import { Rules, Privacy, Transparency } from './pages/Static'
+import { Rules, Privacy, Terms, Transparency } from './pages/Static'
 import Compare from './pages/Compare'
 import CompareParties from './pages/CompareParties'
 import { Register, Login, Forgot, NewPassword, Account } from './pages/Account'
@@ -94,6 +94,7 @@ export default function App() {
           <Route path="/logariasmos" element={<Account />} />
           <Route path="/kanones" element={<Rules />} />
           <Route path="/aporrito" element={<Privacy />} />
+          <Route path="/oroi" element={<Terms />} />
           <Route path="/diafaneia" element={<Transparency />} />
           <Route path="*" element={<div className="wrap pad"><h1>Η σελίδα δεν βρέθηκε</h1><p><Link to="/">Αρχική</Link></p></div>} />
         </Routes>
@@ -111,6 +112,7 @@ export default function App() {
             <li><Link to="/kanones">Κανόνες και απόρρητο</Link></li>
             <li><Link to="/diafaneia">Πώς λειτουργεί η προβολή</Link></li>
             <li><Link to="/aporrito">Πολιτική απορρήτου</Link></li>
+            <li><Link to="/oroi">Όροι χρήσης</Link></li>
             {quizOn && <li><Link to="/erotimatologio">Ερωτηματολόγιο προτιμήσεων</Link></li>}
             {appsOn && <li><Link to="/aitisi">Αίτηση συμμετοχής κόμματος</Link></li>}
             {!session && <li><Link to="/eggrafi">Προαιρετικός λογαριασμός</Link></li>}
