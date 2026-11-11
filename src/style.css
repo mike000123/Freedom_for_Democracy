@@ -293,6 +293,8 @@ header.site nav a.btn-outline:hover { background: var(--tint); color: var(--navy
 .foot-links li { margin: 6px 0; }
 .foot-links a { color: #fff; text-decoration: none; }
 .foot-links a:hover { text-decoration: underline; }
+.foot-cols { display: flex; gap: 12px 56px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 700px) { .foot-cols { justify-content: flex-start; } }
 .foot-small { border-top: 1px solid #2b3858; margin-top: 24px; padding-top: 16px; font-size: 0.85rem; color: var(--pale); }
 .foot-bottom { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; }
 .foot-bottom > p { flex: 1 1 420px; margin: 0; }

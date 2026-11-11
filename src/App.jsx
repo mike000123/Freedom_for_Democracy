@@ -108,16 +108,20 @@ export default function App() {
             </div>
             <p className="foot-note">Freedom for Democracy · Μη κερδοσκοπική πρωτοβουλία.</p>
           </div>
+          <div className="foot-cols">
           <ul className="foot-links">
             <li><Link to="/kanones">Κανόνες και απόρρητο</Link></li>
             <li><Link to="/diafaneia">Πώς λειτουργεί η προβολή</Link></li>
             <li><Link to="/aporrito">Πολιτική απορρήτου</Link></li>
             <li><Link to="/oroi">Όροι χρήσης</Link></li>
+          </ul>
+          <ul className="foot-links">
             {quizOn && <li><Link to="/erotimatologio">Ερωτηματολόγιο προτιμήσεων</Link></li>}
             {appsOn && <li><Link to="/aitisi">Αίτηση συμμετοχής κόμματος</Link></li>}
             {!session && <li><Link to="/eggrafi">Προαιρετικός λογαριασμός</Link></li>}
             {!session && <li><Link to="/eisodos">Είσοδος</Link></li>}
           </ul>
+          </div>
         </div>
       </footer>
     </>
