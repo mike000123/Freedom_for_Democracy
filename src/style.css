@@ -368,7 +368,7 @@ h2.sec .meta { font-family: system-ui, sans-serif; font-size: 0.85rem; font-weig
 .rule-card h3 { font-family: system-ui, sans-serif; font-size: 1.05rem; margin: 0 0 8px; }
 .rule-card p { margin: 0; color: var(--muted); }
 .callout { background: var(--tint); border: 1px solid var(--line); border-left: 5px solid var(--red); border-radius: 8px; padding: 22px 26px; }
-.callout.navy { border-left-color: var(--navy); }
+.callout.navy { border-left-color: #3b6fc4; }
 .callout p { margin-top: 0; }
 @media (max-width: 860px) {
   .hero2, .rules-layout, .charts { grid-template-columns: 1fr; }
